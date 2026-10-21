@@ -1,0 +1,40 @@
+---
+/** Season dates as an accessible list. Today's date is highlighted client-side. */
+import type { DateBlock } from '../lib/content/types';
+import { dateRangeLabelForScreenReaders, formatDateRange, formatWeekdayRange } from '../lib/time';
+
+interface Props {
+  dates: DateBlock[];
+  /** Accessible name for the list. */
+  label: string;
+  year?: number;
+}
+const { dates, label, year } = Astro.props;
+---
+
+<ul class="divide-y divide-cream-300 overflow-hidden rounded-2xl bg-cream-50 ring-1 ring-cream-300" aria-label={label}>
+  {
+    dates.map((block) => (
+      <li
+        class="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 px-5 py-3.5 data-[today]:bg-forest-50"
+        data-date-start={block.startDate}
+        data-date-end={block.endDate ?? block.startDate}
+      >
+        <span class="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <time datetime={block.startDate} class="font-semibold text-ink">
+            <span aria-hidden="true">{formatDateRange(block)}{year && block.startDate.slice(0, 4) !== String(year) ? `, ${block.startDate.slice(0, 4)}` : ''}</span>
+            <span class="sr-only">{dateRangeLabelForScreenReaders(block)}</span>
+          </time>
+          {block.label && (
+            <span class="rounded-full bg-maple-100 px-2.5 py-0.5 text-sm font-semibold text-maple-800">{block.label}</span>
+          )}
+          <span data-today-marker hidden class="rounded-full bg-forest-700 px-2.5 py-0.5 text-sm font-semibold text-white">
+            Today
+          </span>
+        </span>
+        <span class="text-bark-600" aria-hidden="true">{formatWeekdayRange(block)}</span>
+        {block.note && <span class="w-full text-sm text-bark-600">{block.note}</span>}
+      </li>
+    ))
+  }
+</ul>

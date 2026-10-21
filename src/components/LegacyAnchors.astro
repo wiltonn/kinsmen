@@ -1,0 +1,17 @@
+---
+/**
+ * Sends visitors arriving with an old single-page-site anchor
+ * (e.g. /#comp-lthkyjqn) to the matching new page. Server redirects can't
+ * do this because URL fragments are never sent to the server.
+ */
+import { LEGACY_HASHES } from '../lib/redirects';
+---
+
+<script is:inline define:vars={{ map: LEGACY_HASHES }}>
+  (function () {
+    var hash = decodeURIComponent(location.hash.slice(1));
+    if (hash && Object.prototype.hasOwnProperty.call(map, hash) && !document.getElementById(hash)) {
+      location.replace(map[hash]);
+    }
+  })();
+</script>

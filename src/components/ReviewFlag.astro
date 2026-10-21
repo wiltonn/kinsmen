@@ -1,0 +1,33 @@
+---
+/**
+ * Development/preview-only marker for content that is not confirmed.
+ * Renders nothing in production builds.
+ */
+import type { Reviewable } from '../lib/content/types';
+import { getSiteState } from '../lib/site';
+
+interface Props {
+  item?: Reviewable;
+  class?: string;
+}
+const { item, class: className } = Astro.props;
+const { showDevNotes } = await getSiteState();
+const show = showDevNotes && item && item.provenance !== 'confirmed';
+const sample = item?.provenance === 'sample';
+---
+
+{
+  show && (
+    <span
+      class:list={[
+        'inline-flex max-w-full items-start gap-1.5 rounded-md border border-dashed px-2 py-1 align-middle font-sans text-xs leading-snug font-semibold not-italic',
+        sample ? 'border-alert-700 bg-alert-50 text-alert-700' : 'border-maple-700 bg-maple-50 text-maple-800',
+        className,
+      ]}
+      data-review-flag
+    >
+      <span>{sample ? 'SAMPLE — not real' : 'Needs review'}</span>
+      {item?.reviewNote && <span class="font-normal">· {item.reviewNote}</span>}
+    </span>
+  )
+}

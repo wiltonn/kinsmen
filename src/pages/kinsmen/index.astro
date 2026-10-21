@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import SectionHeading from '../../components/SectionHeading.astro';
+import ReviewFlag from '../../components/ReviewFlag.astro';
+import Photo from '../../components/Photo.astro';
+import { getSiteState } from '../../lib/site';
+
+const { content } = await getSiteState();
+const { kinsmen, settings, images } = content;
+const land = settings.landAcknowledgement;
+---
+
+<BaseLayout
+  title="About the Kinsmen Club of Greater London"
+  description="The Kinsmen Club of Greater London runs the Kinsmen Fanshawe Sugar Bush as its main fundraiser. Learn about the club, Kin Canada and our land acknowledgement."
+>
+  <PageHeader eyebrow="About the Kinsmen" title={settings.organizationName} intro={kinsmen.intro[0]}>
+    {kinsmen.intro.slice(1).map((p) => <p class="mt-4 max-w-2xl text-lg text-bark-700">{p}</p>)}
+  </PageHeader>
+
+  <div class="container-page mt-14 grid gap-16">
+    <section aria-labelledby="kin-canada" class="grid gap-10 lg:grid-cols-[1fr_1fr] lg:items-start">
+      <div>
+        <SectionHeading title="Part of Kin Canada" id="kin-canada" />
+        <ReviewFlag item={kinsmen.clubFacts} class="mt-3" />
+        <dl class="mt-6 grid gap-5">
+          {
+            kinsmen.clubFacts.items.map((fact) => (
+              <div class="border-l-4 border-maple-400 pl-4">
+                <dt class="font-display text-xl font-semibold text-forest-900">{fact.title}</dt>
+                <dd class="mt-1 text-bark-700">{fact.body}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        <p class="mt-6">
+          Learn more at <a href="https://www.kincanada.ca/" rel="noopener">kincanada.ca</a>.
+        </p>
+      </div>
+      <Photo image={images.volunteers} sizes="(min-width: 1024px) 560px, 100vw" class="rounded-[var(--radius-card)]" />
+    </section>
+
+    {
+      kinsmen.recognition.length > 0 && (
+        <section aria-labelledby="recognition">
+          <SectionHeading title="Recognition" id="recognition" />
+          <ul class="mt-6 grid gap-4 md:grid-cols-2">
+            {kinsmen.recognition.map((r) => (
+              <li class="card">
+                <h3 class="text-2xl font-semibold">{r.title}</h3>
+                <p class="mt-2 text-bark-700">{r.body}</p>
+                <ReviewFlag item={r} class="mt-3" />
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+
+    <section aria-labelledby="kinsmen-next" class="grid gap-6 md:grid-cols-2">
+      <h2 id="kinsmen-next" class="sr-only">More about our club</h2>
+      <a href="/kinsmen/community-impact" class="card group block no-underline hover:ring-maple-400">
+        <span class="eyebrow">Community impact</span>
+        <span class="mt-2 block font-display text-2xl font-semibold text-forest-900 group-hover:underline">Where your visit goes</span>
+        <span class="mt-2 block text-bark-700">The causes and organizations our club supports.</span>
+      </a>
+      <a href="/kinsmen/get-involved" class="card group block no-underline hover:ring-maple-400">
+        <span class="eyebrow">Get involved</span>
+        <span class="mt-2 block font-display text-2xl font-semibold text-forest-900 group-hover:underline">Volunteer or become a member</span>
+        <span class="mt-2 block text-bark-700">Lend a hand at the Sugar Bush or join the club.</span>
+      </a>
+    </section>
+
+    {
+      land && (
+        <section aria-labelledby="land-acknowledgement" class="rounded-[var(--radius-card)] bg-forest-50 p-6 ring-1 ring-forest-100 sm:p-10">
+          <SectionHeading title="Land acknowledgement" id="land-acknowledgement" />
+          <ReviewFlag item={land} class="mt-3" />
+          <div class="prose-site mt-6 max-w-3xl text-lg">
+            {land.paragraphs.map((p) => <p>{p}</p>)}
+            {land.closing && <p class="font-semibold">{land.closing}</p>}
+          </div>
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>

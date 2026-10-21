@@ -1,0 +1,92 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "astro",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/menus",
+      "destination": "/pancake-house#menu",
+      "permanent": true
+    },
+    {
+      "source": "/french",
+      "destination": "/visit#languages",
+      "permanent": true
+    },
+    {
+      "source": "/about-1",
+      "destination": "/kinsmen",
+      "permanent": true
+    },
+    {
+      "source": "/about",
+      "destination": "/kinsmen",
+      "permanent": true
+    },
+    {
+      "source": "/home",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/menu",
+      "destination": "/pancake-house#menu",
+      "permanent": true
+    },
+    {
+      "source": "/school-tours",
+      "destination": "/school-group-tours",
+      "permanent": true
+    },
+    {
+      "source": "/volunteer",
+      "destination": "/kinsmen/get-involved",
+      "permanent": true
+    },
+    {
+      "source": "/_files/ugd/17f70a_2f498428d478422c8eb9ef61e178dab3.pdf",
+      "destination": "/downloads/kinsmen-fanshawe-sugar-bush-teacher-package.pdf",
+      "permanent": true
+    },
+    {
+      "source": "/_files/ugd/2c371f_2f011964cc3d4051b4181fce39f813a2.pdf",
+      "destination": "/downloads/self-guided-tour-portuguese.pdf",
+      "permanent": true
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=(), payment=()"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        }
+      ]
+    },
+    {
+      "source": "/_astro/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}

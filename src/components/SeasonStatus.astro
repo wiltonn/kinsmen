@@ -1,0 +1,29 @@
+---
+/**
+ * Current season status. Rendered at build time, then re-checked in the
+ * browser against today's Toronto date (see src/scripts/enhance.ts).
+ */
+import { getSiteState } from '../lib/site';
+import ReviewFlag from './ReviewFlag.astro';
+
+interface Props {
+  tone?: 'light' | 'dark';
+}
+const { tone = 'light' } = Astro.props;
+const { seasonView, content } = await getSiteState();
+const season = content.season;
+// Only the fields the client needs to re-evaluate the status.
+const payload = season ? JSON.stringify({ year: season.year, status: season.status, operatingDates: season.operatingDates }) : undefined;
+---
+
+<div data-season-status={payload} data-phase={seasonView.phase} role="status" class:list={[tone === 'dark' && 'on-dark']}>
+  <p class:list={['flex items-center gap-2 font-sans text-sm font-bold tracking-[0.12em] uppercase', tone === 'dark' ? 'text-maple-100' : 'text-maple-700']}>
+    <span class="season-dot inline-block h-2.5 w-2.5 rounded-full" aria-hidden="true"></span>
+    Season status
+  </p>
+  <p class:list={['mt-1 font-display text-2xl font-semibold sm:text-3xl', tone === 'dark' ? 'text-white' : 'text-forest-900']} data-season-headline>
+    {seasonView.headline}
+  </p>
+  <p class:list={['mt-1', tone === 'dark' ? 'text-cream-100' : 'text-bark-700']} data-season-detail>{seasonView.detail}</p>
+  {season && <ReviewFlag item={season} class="mt-2" />}
+</div>

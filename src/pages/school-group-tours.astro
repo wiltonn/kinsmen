@@ -1,0 +1,107 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import DateList from '../components/DateList.astro';
+import PriceTable from '../components/PriceTable.astro';
+import DownloadList from '../components/DownloadList.astro';
+import EnquiryCard from '../components/EnquiryCard.astro';
+import FaqList from '../components/FaqList.astro';
+import ReviewFlag from '../components/ReviewFlag.astro';
+import Photo from '../components/Photo.astro';
+import { getSiteState } from '../lib/site';
+import { formatHours } from '../lib/format';
+
+const { content } = await getSiteState();
+const { season, settings, images, languageResources } = content;
+const school = season?.schoolTours;
+const faqs = [...(season?.faqs ?? []), ...content.generalFaqs].filter((f) => f.topic === 'schoolTours');
+---
+
+<BaseLayout
+  title="School and group tours"
+  description="Bring your class to the Kinsmen Fanshawe Sugar Bush: school tour dates, pricing, how to book and a free teacher’s guide with classroom activities."
+>
+  <PageHeader
+    eyebrow="Visit the Sugar Bush"
+    title="School and group tours"
+    intro={school?.intro ?? 'Hands-on maple syrup learning for students of all ages.'}
+  >
+    <ReviewFlag item={school} class="mt-4" />
+  </PageHeader>
+
+  <div class="container-page mt-14 grid gap-16">
+    <section aria-labelledby="school-dates" class="grid gap-8 lg:grid-cols-2">
+      <div>
+        <SectionHeading title={`${season?.year ?? ''} school tour dates`.trim()} id="school-dates" />
+        {school?.hours && <p class="mt-4 text-lg">Tours run {formatHours(school.hours)}.</p>}
+        {school?.howToBook && <p class="mt-4 text-lg text-bark-700">{school.howToBook}</p>}
+        <div class="mt-6">
+          <EnquiryCard route={settings.enquiries.schoolTours} variant="primary" />
+        </div>
+      </div>
+      <div>
+        {
+          school?.dates.length ? (
+            <DateList dates={school.dates} label={`${season?.year} school tour dates`} year={season?.year} />
+          ) : (
+            <p class="card text-lg">School tour dates for the next season haven’t been announced yet.</p>
+          )
+        }
+      </div>
+    </section>
+
+    <section aria-labelledby="school-pricing" class="grid gap-8 lg:grid-cols-2 lg:items-start">
+      <div class="card">
+        <h2 id="school-pricing" class="sr-only">Pricing and payment</h2>
+        {school?.pricing ? <PriceTable list={school.pricing} headingLevel="h3" /> : <p>Pricing will be posted once confirmed.</p>}
+        {school?.paymentNote && <p class="mt-4 font-semibold">{school.paymentNote}</p>}
+      </div>
+      <Photo image={images.schoolTours} sizes="(min-width: 1024px) 560px, 100vw" class="rounded-[var(--radius-card)]" />
+    </section>
+
+    {
+      school?.downloads.length ? (
+        <section aria-labelledby="teacher-resources">
+          <SectionHeading
+            title="Teacher resources"
+            id="teacher-resources"
+            intro="Activities for before, during and after your visit, including what to bring."
+          />
+          <div class="mt-6 max-w-3xl">
+            <DownloadList downloads={school.downloads} />
+          </div>
+        </section>
+      ) : null
+    }
+
+    <section aria-labelledby="other-groups" class="card max-w-3xl">
+      <h2 id="other-groups" class="text-3xl font-semibold">Other groups</h2>
+      <p class="mt-3 text-lg text-bark-700">
+        Planning a visit with a club, camp or community group? Contact us to talk about dates and what’s available.
+      </p>
+      <p class="mt-4 flex flex-wrap gap-3">
+        {settings.enquiries.schoolTours.href && <a href={settings.enquiries.schoolTours.href} class="btn btn-secondary">{settings.enquiries.schoolTours.actionLabel}</a>}
+        <a href="/contact" class="btn btn-secondary">Other ways to reach us</a>
+      </p>
+    </section>
+
+    {
+      languageResources.length > 0 && (
+        <section aria-labelledby="school-languages">
+          <SectionHeading title="Resources in other languages" id="school-languages" />
+          <div class="mt-6 max-w-3xl"><DownloadList downloads={languageResources} /></div>
+        </section>
+      )
+    }
+
+    {
+      faqs.length > 0 && (
+        <section aria-labelledby="school-questions">
+          <SectionHeading title="Questions" id="school-questions" />
+          <div class="mt-6 max-w-3xl"><FaqList faqs={faqs} /></div>
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>

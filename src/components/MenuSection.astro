@@ -1,0 +1,43 @@
+---
+import type { Menu } from '../lib/content/types';
+import { formatPrice } from '../lib/format';
+import ReviewFlag from './ReviewFlag.astro';
+
+interface Props {
+  menu: Menu;
+}
+const { menu } = Astro.props;
+---
+
+<div>
+  <ReviewFlag item={menu} />
+  {menu.intro && <p class="mt-3 text-lg text-bark-700">{menu.intro}</p>}
+  <div class="mt-6 grid gap-8 md:grid-cols-2">
+    {
+      menu.categories.map((category) => (
+        <section class="card" aria-labelledby={`menu-${category.title.replace(/\W+/g, '-').toLowerCase()}`}>
+          <h3 id={`menu-${category.title.replace(/\W+/g, '-').toLowerCase()}`} class="text-2xl font-semibold">
+            {category.title}
+          </h3>
+          {category.description && <p class="mt-1 text-bark-700">{category.description}</p>}
+          <dl class="mt-4 divide-y divide-dashed divide-cream-300">
+            {category.items.map((item) => (
+              <div class="flex flex-wrap items-baseline justify-between gap-x-4 py-2.5">
+                <dt class="font-semibold">
+                  {item.name}
+                  {item.description && <span class="block text-sm font-normal text-bark-600">{item.description}</span>}
+                  {item.dietaryNote && <span class="block text-sm font-normal text-forest-700">{item.dietaryNote}</span>}
+                </dt>
+                <dd class="font-semibold tabular-nums">
+                  {item.variants?.length
+                    ? item.variants.map((v) => `${v.label} ${formatPrice(v.price)}`).join(' · ')
+                    : formatPrice(item.price)}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ))
+    }
+  </div>
+</div>

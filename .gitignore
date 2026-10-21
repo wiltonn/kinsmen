@@ -1,0 +1,18 @@
+# build output
+dist/
+.astro/
+studio/dist/
+
+# dependencies
+node_modules/
+
+# environment — never commit real values
+.env
+.env.*
+!.env.example
+
+# logs and OS files
+npm-debug.log*
+.DS_Store
+.vercel/
+.wrangler/

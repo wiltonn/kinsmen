@@ -1,0 +1,174 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import SeasonStatus from '../components/SeasonStatus.astro';
+import DateList from '../components/DateList.astro';
+import PriceTable from '../components/PriceTable.astro';
+import FaqList from '../components/FaqList.astro';
+import DownloadList from '../components/DownloadList.astro';
+import ReviewFlag from '../components/ReviewFlag.astro';
+import Photo from '../components/Photo.astro';
+import { getSiteState } from '../lib/site';
+import { formatHours } from '../lib/format';
+
+const { content, reservationView } = await getSiteState();
+const { season, settings, experiences, images, languageResources } = content;
+const contact = settings.contact;
+const visitFaqs = [...(season?.faqs ?? []), ...content.generalFaqs].filter((f) => f.topic === 'visit');
+---
+
+<BaseLayout
+  title="Plan your visit"
+  description="Season dates, hours, prices, directions and what to do at the Kinsmen Fanshawe Sugar Bush near Thorndale, Ontario."
+>
+  <PageHeader
+    eyebrow="Visit the Sugar Bush"
+    title="Plan your visit"
+    intro="Everything you need for a day at the Sugar Bush: when we’re open, what it costs, what to do and how to get here."
+  >
+    <nav aria-label="On this page" class="mt-8">
+      <ul class="flex flex-wrap gap-2 font-sans text-base">
+        {
+          [
+            ['#dates', 'Dates and hours'],
+            ['#prices', 'Prices'],
+            ['#things-to-do', 'Things to do'],
+            ['#directions', 'Directions'],
+            ['#languages', 'Other languages'],
+            ['#questions', 'Questions'],
+          ].map(([href, label]) => (
+            <li>
+              <a href={href} class="inline-flex min-h-11 items-center rounded-full bg-cream-50 px-4 font-semibold no-underline ring-1 ring-cream-300 hover:bg-white">
+                {label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </PageHeader>
+
+  <div class="container-page mt-14 grid gap-16">
+    <section aria-labelledby="dates" class="grid gap-8 lg:grid-cols-[1fr_1.2fr]">
+      <div>
+        <SectionHeading title="Dates and hours" id="dates" />
+        <div class="mt-6"><SeasonStatus /></div>
+        <dl class="mt-6 grid gap-4">
+          <div>
+            <dt class="font-semibold">Opening hours</dt>
+            <dd class="text-bark-700">
+              {season?.operatingHours ? formatHours(season.operatingHours) : 'To be confirmed. We’ll post hours here as soon as they’re set.'}
+              {season?.operatingHours?.note && <span class="block">{season.operatingHours.note}</span>}
+            </dd>
+          </div>
+          {
+            season?.operatingNote && (
+              <div>
+                <dt class="font-semibold">Good to know</dt>
+                <dd class="text-bark-700">{season.operatingNote}</dd>
+              </div>
+            )
+          }
+        </dl>
+      </div>
+      <div>
+        {
+          season?.operatingDates.length ? (
+            <>
+              <h3 class="mb-3 font-sans text-lg font-bold">{season.year} public dates</h3>
+              <DateList dates={season.operatingDates} label={`${season.year} public dates`} year={season.year} />
+            </>
+          ) : (
+            <p class="card text-lg">Public dates for the next season haven’t been announced yet. Check back soon.</p>
+          )
+        }
+      </div>
+    </section>
+
+    <section aria-labelledby="prices" class="grid gap-8 lg:grid-cols-2">
+      <div>
+        <SectionHeading title="Prices" id="prices" />
+        {
+          season?.admission ? (
+            <div class="card mt-6">
+              <PriceTable list={season.admission} />
+            </div>
+          ) : (
+            <p class="mt-4 text-lg text-bark-700">
+              Admission prices for the {season?.year ?? 'next'} season haven’t been announced yet.
+              <ReviewFlag item={{ provenance: 'needsReview', reviewNote: 'Public admission prices were not published on the old site.' }} />
+            </p>
+          )
+        }
+      </div>
+      <div class="card self-start">
+        <h3 class="text-2xl font-semibold">Pancake House</h3>
+        <p class="mt-2 text-bark-700">Meals are listed on the Pancake House menu. {reservationView.message}</p>
+        <p class="mt-4 flex flex-wrap gap-3">
+          <a href="/pancake-house#menu" class="btn btn-secondary">See the menu</a>
+          {reservationView.canBook && <a href="/pancake-house#reserve" class="btn btn-primary">Reserve a table</a>}
+        </p>
+        <p class="mt-4 text-base text-bark-700">
+          Visiting with a class? <a href="/school-group-tours">School tours</a> have their own dates and pricing.
+        </p>
+      </div>
+    </section>
+
+    <section aria-labelledby="things-to-do">
+      <SectionHeading title="Things to do" id="things-to-do" />
+      <div class="mt-8 grid gap-6 md:grid-cols-2">
+        {
+          experiences.map((item) => (
+            <div class="card">
+              <h3 class="text-2xl font-semibold">{item.title}</h3>
+              <p class="mt-2 text-bark-700">{item.body}</p>
+              {item.bookingNote && <p class="mt-2 font-semibold text-forest-700">{item.bookingNote}</p>}
+              <ReviewFlag item={item} class="mt-3" />
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section aria-labelledby="directions" class="grid gap-8 lg:grid-cols-2 lg:items-start">
+      <div>
+        <SectionHeading title="Directions and parking" id="directions" />
+        <address class="mt-6 text-lg not-italic">
+          <strong class="block">{settings.siteName}</strong>
+          {contact.addressLines.map((l) => <span class="block">{l}</span>)}
+          <span class="block">{contact.locality}, {contact.region} {contact.postalCode}</span>
+        </address>
+        {contact.directions?.map((p) => <p class="mt-3 text-bark-700">{p}</p>)}
+        {
+          contact.parking ? (
+            <p class="mt-3 text-bark-700"><strong>Parking:</strong> {contact.parking}</p>
+          ) : (
+            <ReviewFlag item={{ provenance: 'needsReview', reviewNote: 'Parking arrangements were not published on the old site. Add them in Site settings.' }} class="mt-3" />
+          )
+        }
+        <ReviewFlag item={contact} class="mt-3" />
+        <p class="mt-6 flex flex-wrap gap-3">
+          {contact.mapUrl && <a href={contact.mapUrl} class="btn btn-primary" rel="noopener">Get directions in Google Maps</a>}
+          <a href={contact.phoneHref} class="btn btn-secondary">Call {contact.phone}</a>
+        </p>
+      </div>
+      <Photo image={images.hero} sizes="(min-width: 1024px) 560px, 100vw" class="rounded-[var(--radius-card)]" />
+    </section>
+
+    <section aria-labelledby="languages">
+      <SectionHeading
+        title="Other languages"
+        id="languages"
+        intro="A self-guided tour brochure is available in Portuguese. We haven’t published a French version yet."
+      />
+      <div class="mt-6 max-w-3xl"><DownloadList downloads={languageResources} /></div>
+    </section>
+
+    <section aria-labelledby="questions">
+      <SectionHeading title="Questions" id="questions" />
+      <div class="mt-6 max-w-3xl"><FaqList faqs={visitFaqs} /></div>
+      <p class="mt-4"><a href="/faq" class="font-semibold">All visitor questions</a></p>
+    </section>
+  </div>
+</BaseLayout>
