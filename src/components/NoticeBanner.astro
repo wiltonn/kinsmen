@@ -1,0 +1,27 @@
+---
+import type { VisitorNotice } from '../lib/content/types';
+interface Props {
+  notice: VisitorNotice;
+}
+const { notice } = Astro.props;
+const important = notice.level === 'important';
+---
+
+<aside
+  class:list={['font-sans', important ? 'bg-maple-700 text-white on-dark' : 'bg-maple-100 text-ink']}
+  aria-label="Visitor notice"
+  data-expires={notice.expiresAt}
+>
+  <div class="container-page flex flex-wrap items-center gap-x-4 gap-y-1 py-3 text-base">
+    <p class="font-semibold">
+      <span class="sr-only">{important ? 'Important: ' : 'Notice: '}</span>{notice.message}
+    </p>
+    {
+      notice.linkUrl && (
+        <a href={notice.linkUrl} class:list={['font-bold', important ? 'text-white hover:text-cream-100' : '']}>
+          {notice.linkLabel ?? 'Details'}
+        </a>
+      )
+    }
+  </div>
+</aside>

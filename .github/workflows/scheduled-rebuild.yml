@@ -1,0 +1,23 @@
+name: Scheduled rebuild
+
+# Keeps "open today" and visitor-alert expiry accurate in the static HTML.
+# Requires the repository secret DEPLOY_HOOK_URL (Cloudflare Pages or Vercel deploy hook).
+on:
+  schedule:
+    # 05:15 Toronto time (10:15 UTC during EST), daily from January to April.
+    - cron: '15 10 * 1-4 *'
+  workflow_dispatch:
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy hook
+        env:
+          DEPLOY_HOOK_URL: ${{ secrets.DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$DEPLOY_HOOK_URL" ]; then
+            echo "DEPLOY_HOOK_URL is not set; skipping."
+            exit 0
+          fi
+          curl --fail --silent --show-error -X POST "$DEPLOY_HOOK_URL"

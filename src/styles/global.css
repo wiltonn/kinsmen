@@ -1,0 +1,192 @@
+@import '@fontsource-variable/fraunces';
+@import '@fontsource-variable/source-sans-3';
+@import 'tailwindcss';
+
+/*
+ * Design tokens. Colours were checked for WCAG 2.2 AA contrast
+ * (see tests/contrast.test.ts): text colours >= 4.5:1 on cream/white,
+ * button text >= 4.5:1 on its background.
+ */
+@theme {
+  --font-display: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Source Sans 3 Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  --color-cream-50: #fffcf6;
+  --color-cream-100: #fbf6ec;
+  --color-cream-200: #f4ead6;
+  --color-cream-300: #e8d9bb;
+
+  --color-ink: #1d1813;
+  --color-bark-700: #4f3e2c;
+  --color-bark-600: #6a5640;
+
+  --color-maple-50: #fdf3e2;
+  --color-maple-100: #f9e1b8;
+  --color-maple-300: #eeb359;
+  --color-maple-400: #e0952f;
+  --color-maple-600: #a6550f;
+  --color-maple-700: #8a440b;
+  --color-maple-800: #6c350a;
+
+  --color-forest-50: #eef4ee;
+  --color-forest-100: #dbe8dc;
+  --color-forest-600: #2f6145;
+  --color-forest-700: #24503a;
+  --color-forest-800: #1d4030;
+  --color-forest-900: #163126;
+
+  --color-alert-50: #fdecea;
+  --color-alert-700: #9b1c1c;
+
+  --radius-card: 1.25rem;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    @apply bg-cream-100 font-sans text-ink antialiased;
+    font-size: 1.125rem;
+    line-height: 1.65;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-forest-900;
+    font-optical-sizing: auto;
+    line-height: 1.15;
+    text-wrap: balance;
+    letter-spacing: -0.01em;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  a {
+    @apply text-maple-700 underline decoration-1 underline-offset-[0.2em];
+  }
+  a:hover {
+    @apply text-maple-800 decoration-2;
+  }
+
+  /* One consistent, highly visible focus indicator (WCAG 2.4.7 / 2.4.13). */
+  :focus-visible {
+    outline: 3px solid var(--color-maple-600);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  .on-dark :focus-visible,
+  .on-dark:focus-visible {
+    outline-color: var(--color-maple-300);
+  }
+
+  ::selection {
+    background: var(--color-maple-100);
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+  }
+
+  .eyebrow {
+    @apply font-sans text-sm font-bold tracking-[0.14em] text-maple-700 uppercase;
+  }
+
+  .prose-site > * + * {
+    margin-top: 1em;
+  }
+  .prose-site ul {
+    @apply list-disc pl-6;
+  }
+  .prose-site ol {
+    @apply list-decimal pl-6;
+  }
+
+  .btn {
+    @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 text-center font-sans text-base font-bold no-underline transition-colors;
+  }
+  .btn-primary {
+    @apply bg-maple-700 text-white hover:bg-maple-800 hover:text-white;
+  }
+  .btn-secondary {
+    @apply border-2 border-forest-700 bg-transparent text-forest-800 hover:bg-forest-700 hover:text-white;
+  }
+  .btn-light {
+    @apply bg-cream-50 text-forest-900 hover:bg-maple-100 hover:text-forest-900;
+  }
+  .btn-outline-light {
+    @apply border-2 border-cream-50 text-cream-50 hover:bg-cream-50 hover:text-forest-900;
+  }
+
+  .card {
+    @apply rounded-[var(--radius-card)] bg-cream-50 p-6 ring-1 ring-cream-300 sm:p-8;
+  }
+
+  /* Subtle maple-leaf divider, purely decorative. */
+  .leaf-rule {
+    @apply flex items-center gap-3 text-maple-400;
+  }
+  .leaf-rule::before,
+  .leaf-rule::after {
+    content: '';
+    @apply h-px flex-1 bg-cream-300;
+  }
+}
+
+@layer utilities {
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    @apply sr-only;
+  }
+}
+
+/* Mobile menu: expanded without JavaScript, collapsible with it. */
+.js [data-mobile-menu]:not([data-open]) {
+  display: none;
+}
+.js [data-disclosure-panel][data-open] {
+  display: block;
+}
+/* Without JavaScript the dropdowns can't open, so show the full menu instead. */
+html:not(.js) [data-desktop-nav] {
+  display: none !important;
+}
+html:not(.js) [data-mobile-menu] {
+  display: block !important;
+}
+
+/* Season status dot follows data-phase, which the browser may update. */
+[data-season-status] .season-dot {
+  background: var(--color-maple-400);
+}
+[data-phase='openToday'] .season-dot,
+[data-phase='inSeason'] .season-dot {
+  background: var(--color-forest-600);
+}
+[data-phase='ended'] .season-dot {
+  background: var(--color-bark-600);
+}

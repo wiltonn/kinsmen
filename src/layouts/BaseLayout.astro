@@ -1,0 +1,99 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import NoticeBanner from '../components/NoticeBanner.astro';
+import DevBanner from '../components/DevBanner.astro';
+import JsonLd from '../components/JsonLd.astro';
+import { getSiteState } from '../lib/site';
+import { getConfig } from '../lib/config';
+import { pagePath } from '../lib/navigation';
+import { getImage } from 'astro:assets';
+import ogFallback from '../assets/images/sugar-shack-visitors.jpg';
+
+interface Props {
+  /** Page-specific title; the site name is appended. */
+  title: string;
+  /** 120–160 characters, unique per page. */
+  description: string;
+  /** Breadcrumb trail for nested pages (excluding the current page). */
+  breadcrumbs?: { name: string; href: string }[];
+  /** Override the social sharing image (absolute or root-relative URL). */
+  ogImage?: string;
+  noindex?: boolean;
+}
+
+const { title, description, breadcrumbs, ogImage, noindex = false } = Astro.props;
+const state = await getSiteState();
+const config = getConfig();
+const { settings } = state.content;
+
+const path = pagePath(Astro.url.pathname);
+const fullTitle = path === '/' ? `${settings.siteName} | ${title}` : `${title} | ${settings.siteName}`;
+const canonical = new URL(path, config.siteUrl).toString();
+const robots = !state.isProduction || noindex ? 'noindex, nofollow' : 'index, follow';
+
+const ogDefault = await getImage({ src: ogFallback, width: 1200, height: 630, format: 'jpg', fit: 'cover' });
+const ogImageUrl = new URL(ogImage ?? ogDefault.src, config.siteUrl).toString();
+
+const breadcrumbLd = breadcrumbs?.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [...breadcrumbs, { name: title, href: path }].map((crumb, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: crumb.name,
+        item: new URL(crumb.href, config.siteUrl).toString(),
+      })),
+    }
+  : undefined;
+---
+
+<!doctype html>
+<html lang="en-CA">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content={robots} />
+    <meta name="theme-color" content="#163126" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={settings.siteName} />
+    <meta property="og:locale" content="en_CA" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script is:inline>document.documentElement.classList.add('js');</script>
+    {breadcrumbLd && <JsonLd data={breadcrumbLd} />}
+    <slot name="head" />
+  </head>
+  <body class="flex min-h-screen flex-col">
+    <a
+      href="#main"
+      class="sr-only-focusable fixed top-3 left-3 z-[100] rounded-full bg-forest-900 px-5 py-3 font-bold text-white no-underline"
+    >
+      Skip to main content
+    </a>
+    {state.showDevNotes && <DevBanner />}
+    {state.notice && <NoticeBanner notice={state.notice} />}
+    <Header />
+    <main id="main" tabindex="-1" class="flex-1 focus:outline-none">
+      <slot />
+    </main>
+    <Footer />
+    <script>
+      import '../scripts/enhance';
+    </script>
+  </body>
+</html>

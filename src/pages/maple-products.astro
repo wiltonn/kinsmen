@@ -1,0 +1,95 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import FaqList from '../components/FaqList.astro';
+import ReviewFlag from '../components/ReviewFlag.astro';
+import Photo from '../components/Photo.astro';
+import { getSiteState } from '../lib/site';
+import { formatPrice } from '../lib/format';
+
+const { content } = await getSiteState();
+const { products, purchaseLocations, images, season } = content;
+const groups = [
+  { id: 'syrup', title: 'Pure maple syrup', items: products.filter((p) => p.category === 'syrup') },
+  { id: 'other', title: 'Maple treats and pantry', items: products.filter((p) => p.category === 'other') },
+].filter((g) => g.items.length);
+const faqs = [...(season?.faqs ?? []), ...content.generalFaqs].filter((f) => f.topic === 'products');
+---
+
+<BaseLayout
+  title="Maple syrup and maple products"
+  description="Pure maple syrup, maple butter, jellies and more from the Kinsmen Fanshawe Sugar Bush — prices, sizes and where to buy during and after the season."
+>
+  <PageHeader
+    eyebrow="Visit the Sugar Bush"
+    title="Maple products"
+    intro="Take a taste of the Sugar Bush home. Every purchase supports the Kinsmen Club of Greater London’s community work."
+  />
+
+  <div class="container-page mt-14 grid gap-16">
+    <div class="grid gap-10 lg:grid-cols-[1.3fr_1fr] lg:items-start">
+      <div class="grid gap-10">
+        {
+          groups.map((group) => (
+            <section aria-labelledby={`products-${group.id}`}>
+              <SectionHeading title={group.title} id={`products-${group.id}`} />
+              <ul class="mt-6 grid gap-4">
+                {group.items.map((product) => (
+                  <li class="card">
+                    <h3 class="text-2xl font-semibold">{product.name}</h3>
+                    {product.description && <p class="mt-1 text-bark-700">{product.description}</p>}
+                    <table class="mt-3 w-full text-left">
+                      <caption class="sr-only">{product.name} sizes and prices</caption>
+                      <thead class="sr-only">
+                        <tr><th scope="col">Size</th><th scope="col">Price</th></tr>
+                      </thead>
+                      <tbody>
+                        {product.variants.map((v) => (
+                          <tr class="border-b border-dashed border-cream-300 last:border-0">
+                            <th scope="row" class="py-2 font-normal">{v.label}</th>
+                            <td class="py-2 text-right font-semibold tabular-nums">{formatPrice(v.price)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                    <ReviewFlag item={product} class="mt-3" />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+      <div class="grid gap-8 lg:sticky lg:top-28">
+        <Photo image={images.products} sizes="(min-width: 1024px) 440px, 100vw" class="rounded-[var(--radius-card)]" aspect="aspect-[9/8]" />
+        <section aria-labelledby="where-to-buy" class="card">
+          <h2 id="where-to-buy" class="text-3xl font-semibold">Where to buy</h2>
+          <ul class="mt-4 grid gap-4">
+            {
+              purchaseLocations.map((place) => (
+                <li>
+                  <h3 class="font-sans text-xl font-bold">
+                    {place.url ? <a href={place.url} rel="noopener">{place.name}</a> : place.name}
+                  </h3>
+                  <p class="text-bark-700">{place.when}</p>
+                  {place.address && <p class="text-bark-700">{place.address}</p>}
+                  <ReviewFlag item={place} class="mt-2" />
+                </li>
+              ))
+            }
+          </ul>
+        </section>
+      </div>
+    </div>
+
+    {
+      faqs.length > 0 && (
+        <section aria-labelledby="product-questions">
+          <SectionHeading title="Questions" id="product-questions" />
+          <div class="mt-6 max-w-3xl"><FaqList faqs={faqs} /></div>
+        </section>
+      )
+    }
+  </div>
+</BaseLayout>

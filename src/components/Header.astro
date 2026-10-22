@@ -1,0 +1,134 @@
+---
+import { NAV_GROUPS, CONTACT_LINK, isCurrent } from '../lib/navigation';
+import { getSiteState } from '../lib/site';
+import Logo from './Logo.astro';
+
+const { reservationView, content } = await getSiteState();
+const path = Astro.url.pathname;
+const showReserve = reservationView.showHeaderCta;
+---
+
+<header class="sticky top-0 z-50 border-b border-cream-300 bg-cream-50/95 backdrop-blur supports-[backdrop-filter]:bg-cream-50/85">
+  <div class="container-page flex min-h-18 items-center justify-between gap-4 py-2">
+    <a href="/" class="flex items-center gap-3 rounded-md text-forest-900 no-underline hover:text-forest-900">
+      <Logo class="h-11 w-11 shrink-0" />
+      <span class="font-display text-lg leading-tight font-semibold sm:text-xl">
+        <span class="block text-sm font-normal tracking-wide text-bark-600 sm:text-base">Kinsmen Fanshawe</span>
+        Sugar Bush
+      </span>
+      <span class="sr-only">— {content.settings.siteName} home</span>
+    </a>
+
+    <!-- Desktop navigation -->
+    <nav aria-label="Main" class="hidden lg:block" data-desktop-nav>
+      <ul class="flex items-center gap-1">
+        {
+          NAV_GROUPS.map((group) => {
+            const active = group.links.some((l) => isCurrent(path, l.href));
+            return (
+              <li class="relative" data-disclosure>
+                <button
+                  type="button"
+                  class:list={[
+                    'flex min-h-11 items-center gap-1.5 rounded-full px-4 font-semibold text-forest-900 hover:bg-cream-200',
+                    active && 'bg-forest-50',
+                  ]}
+                  aria-expanded="false"
+                  aria-controls={`nav-${group.id}`}
+                  data-disclosure-button
+                >
+                  {group.label}
+                  <svg aria-hidden="true" viewBox="0 0 20 20" class="h-4 w-4 transition-transform [[aria-expanded=true]>&]:rotate-180">
+                    <path fill="currentColor" d="M5.3 7.3a1 1 0 0 1 1.4 0L10 10.6l3.3-3.3a1 1 0 1 1 1.4 1.4l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 0 1 0-1.4Z" />
+                  </svg>
+                </button>
+                <div
+                  id={`nav-${group.id}`}
+                  class="absolute top-full left-0 mt-2 hidden w-80 rounded-2xl bg-cream-50 p-2 shadow-xl ring-1 ring-cream-300"
+                  data-disclosure-panel
+                >
+                  <ul>
+                    {group.links.map((link) => (
+                      <li>
+                        <a
+                          href={link.href}
+                          aria-current={isCurrent(path, link.href) ? 'page' : undefined}
+                          class="block rounded-xl px-4 py-3 text-forest-900 no-underline hover:bg-cream-200 aria-[current=page]:bg-forest-50"
+                        >
+                          <span class="block font-semibold">{link.label}</span>
+                          {link.description && <span class="block text-sm text-bark-600">{link.description}</span>}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            );
+          })
+        }
+        <li>
+          <a
+            href={CONTACT_LINK.href}
+            aria-current={isCurrent(path, CONTACT_LINK.href) ? 'page' : undefined}
+            class="flex min-h-11 items-center rounded-full px-4 font-semibold text-forest-900 no-underline hover:bg-cream-200 aria-[current=page]:bg-forest-50"
+          >
+            {CONTACT_LINK.label}
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      {
+        showReserve && (
+          <a href="/pancake-house#reserve" class="btn btn-primary hidden !min-h-11 !px-5 sm:inline-flex">
+            Reserve a table
+          </a>
+        )
+      }
+      <button
+        type="button"
+        class="flex min-h-11 min-w-11 items-center gap-2 rounded-full border-2 border-forest-700 px-4 font-semibold text-forest-900 lg:hidden"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-mobile-toggle
+        hidden
+      >
+        <svg aria-hidden="true" viewBox="0 0 24 24" class="h-5 w-5">
+          <path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+        <span data-mobile-toggle-label>Menu</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile navigation: always visible without JavaScript; collapsible with it. -->
+  <nav id="mobile-menu" aria-label="Main" class="max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain border-t border-cream-300 bg-cream-50 lg:hidden" data-mobile-menu>
+    <div class="container-page grid gap-6 py-6 sm:grid-cols-2">
+      {
+        NAV_GROUPS.map((group) => (
+          <div>
+            <p id={`mobile-${group.id}`} class="eyebrow mb-2">{group.label}</p>
+            <ul aria-labelledby={`mobile-${group.id}`}>
+              {group.links.map((link) => (
+                <li>
+                  <a
+                    href={link.href}
+                    aria-current={isCurrent(path, link.href) ? 'page' : undefined}
+                    class="flex min-h-12 items-center rounded-lg px-3 text-lg font-semibold text-forest-900 no-underline hover:bg-cream-200 aria-[current=page]:bg-forest-50"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+      <div class="flex flex-col gap-3 sm:col-span-2">
+        <a href="/contact" class="btn btn-secondary" aria-current={isCurrent(path, '/contact') ? 'page' : undefined}>Contact us</a>
+        {showReserve && <a href="/pancake-house#reserve" class="btn btn-primary">Reserve a table</a>}
+      </div>
+    </div>
+  </nav>
+</header>

@@ -1,0 +1,71 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import SectionHeading from '../components/SectionHeading.astro';
+import FaqList from '../components/FaqList.astro';
+import { getSiteState } from '../lib/site';
+import type { Faq } from '../lib/content/types';
+
+const { content, showDevNotes } = await getSiteState();
+const { season, settings } = content;
+const contact = settings.contact;
+
+// Season FAQs first, then general ones; skip duplicates.
+const seen = new Set<string>();
+const all = [...(season?.faqs ?? []), ...content.generalFaqs].filter((f) => {
+  if (f.provenance === 'sample' && !showDevNotes) return false;
+  const key = f.id ?? f.question;
+  if (seen.has(key)) return false;
+  seen.add(key);
+  return true;
+});
+
+const topics: { id: Faq['topic']; title: string }[] = [
+  { id: 'visit', title: 'Visiting' },
+  { id: 'pancakeHouse', title: 'Pancake House' },
+  { id: 'schoolTours', title: 'School and group tours' },
+  { id: 'products', title: 'Maple products' },
+  { id: 'kinsmen', title: 'The Kinsmen Club' },
+];
+const groups = topics.map((t) => ({ ...t, faqs: all.filter((f) => f.topic === t.id) })).filter((g) => g.faqs.length);
+---
+
+<BaseLayout
+  title="Visitor questions"
+  description="Answers to common questions about visiting the Kinsmen Fanshawe Sugar Bush, the Pancake House, school tours and maple products."
+>
+  <PageHeader eyebrow="Visit the Sugar Bush" title="Visitor questions" intro="Can’t find your answer? Call or email us — we’re happy to help." />
+
+  <div class="container-page mt-14 grid gap-14 lg:grid-cols-[1fr_2.2fr]">
+    <aside class="lg:sticky lg:top-28 lg:self-start">
+      <nav aria-label="Question topics">
+        <ul class="grid gap-1">
+          {
+            groups.map((g) => (
+              <li>
+                <a href={`#${g.id}`} class="flex min-h-11 items-center rounded-lg px-3 font-semibold text-forest-900 no-underline hover:bg-cream-200">
+                  {g.title}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+      <div class="card mt-6">
+        <p class="font-semibold">Still have a question?</p>
+        <p class="mt-2"><a href={contact.phoneHref}>{contact.phone}</a></p>
+        <p><a href={`mailto:${contact.email}`} class="break-all">{contact.email}</a></p>
+      </div>
+    </aside>
+    <div class="grid gap-12">
+      {
+        groups.map((g) => (
+          <section aria-labelledby={g.id}>
+            <SectionHeading title={g.title} id={g.id} />
+            <div class="mt-5"><FaqList faqs={g.faqs} /></div>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</BaseLayout>

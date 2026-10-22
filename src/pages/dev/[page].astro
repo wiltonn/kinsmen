@@ -1,0 +1,62 @@
+---
+/**
+ * Preview-only tools. Not generated in production builds.
+ * /dev/content-review lists every unconfirmed piece of content.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageHeader from '../../components/PageHeader.astro';
+import { getConfig } from '../../lib/config';
+import { getSiteState } from '../../lib/site';
+import { collectReviewItems } from '../../lib/content/review';
+import { SCENARIOS } from '../../lib/scenarios';
+
+export function getStaticPaths() {
+  return getConfig().isProduction ? [] : [{ params: { page: 'content-review' } }];
+}
+
+const state = await getSiteState();
+const items = collectReviewItems(state.content);
+const areas = [...new Set(items.map((i) => i.area))];
+---
+
+<BaseLayout title="Content review" description="Development page listing unconfirmed content." noindex>
+  <PageHeader
+    eyebrow="Preview only"
+    title="Content needing review"
+    intro={`${items.length} item(s) are not yet confirmed. Content source: ${state.content.source}. This page is not built for production.`}
+  />
+  <div class="container-page mt-10 grid gap-10">
+    <section aria-labelledby="state" class="card">
+      <h2 id="state" class="text-2xl font-semibold">Current build state</h2>
+      <dl class="mt-4 grid gap-2 sm:grid-cols-2">
+        <div><dt class="font-semibold">Built at (Toronto date)</dt><dd>{state.seasonView.today}</dd></div>
+        <div><dt class="font-semibold">Season phase</dt><dd>{state.seasonView.phase}</dd></div>
+        <div><dt class="font-semibold">Reservation state</dt><dd>{state.reservationView.state} (can book: {String(state.reservationView.canBook)})</dd></div>
+        <div><dt class="font-semibold">OpenTable configured</dt><dd>{String(state.booking.configured)} {state.booking.widget ? '(widget + link)' : ''}</dd></div>
+      </dl>
+      <p class="mt-4 text-base text-bark-700">
+        Preview other states locally with <code>FIXTURE_SCENARIO</code> ({SCENARIOS.join(', ')}) and <code>SITE_NOW</code>. See README.
+      </p>
+    </section>
+    {
+      areas.map((area) => (
+        <section aria-labelledby={`area-${area}`}>
+          <h2 id={`area-${area}`} class="text-2xl font-semibold">{area}</h2>
+          <ul class="mt-3 divide-y divide-cream-300 rounded-2xl bg-cream-50 ring-1 ring-cream-300">
+            {items.filter((i) => i.area === area).map((i) => (
+              <li class="px-5 py-3">
+                <p class="font-semibold">
+                  {i.label}{' '}
+                  <span class:list={['ml-1 rounded px-2 py-0.5 text-xs', i.provenance === 'sample' ? 'bg-alert-50 text-alert-700' : 'bg-maple-50 text-maple-800']}>
+                    {i.provenance === 'sample' ? 'Sample' : 'Needs review'}
+                  </span>
+                </p>
+                {i.note && <p class="text-base text-bark-700">{i.note}</p>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</BaseLayout>

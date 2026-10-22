@@ -1,0 +1,32 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { NAV_GROUPS } from '../lib/navigation';
+---
+
+<BaseLayout title="Page not found" description="Sorry, we couldn’t find that page on the Kinsmen Fanshawe Sugar Bush website." noindex>
+  <div class="container-page py-20">
+    <p class="eyebrow">Error 404</p>
+    <h1 class="mt-2 text-4xl font-semibold sm:text-5xl">We couldn’t find that page</h1>
+    <p class="mt-4 max-w-2xl text-xl text-bark-700">
+      Our website has a new layout, so an old link may have moved. Try one of these instead:
+    </p>
+    <div class="mt-10 grid gap-8 md:grid-cols-2">
+      {
+        NAV_GROUPS.map((group) => (
+          <section aria-labelledby={`nf-${group.id}`} class="card">
+            <h2 id={`nf-${group.id}`} class="text-2xl font-semibold">{group.label}</h2>
+            <ul class="mt-4 grid gap-2">
+              {group.links.map((link) => (
+                <li><a href={link.href} class="text-lg font-semibold">{link.label}</a></li>
+              ))}
+            </ul>
+          </section>
+        ))
+      }
+    </div>
+    <p class="mt-10 flex flex-wrap gap-3">
+      <a href="/" class="btn btn-primary">Go to the homepage</a>
+      <a href="/contact" class="btn btn-secondary">Contact us</a>
+    </p>
+  </div>
+</BaseLayout>

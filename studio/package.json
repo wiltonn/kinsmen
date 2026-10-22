@@ -1,0 +1,28 @@
+{
+  "name": "kinsmen-sugar-bush-studio",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Sanity Studio for editing the Kinsmen Fanshawe Sugar Bush website",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "dev": "sanity dev",
+    "build": "sanity build",
+    "deploy": "sanity deploy",
+    "validate": "sanity schema validate"
+  },
+  "dependencies": {
+    "@sanity/icons": "^5.2.3",
+    "@sanity/vision": "^6.20.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "sanity": "^6.20.0",
+    "styled-components": "^6.6.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.3.0",
+    "typescript": "~6.0.3"
+  }
+}
