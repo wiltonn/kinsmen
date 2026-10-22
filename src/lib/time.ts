@@ -92,6 +92,25 @@ export function formatWeekdayRange(block: DateBlock): string {
   return end === block.startDate ? start : `${start} – ${formatWeekday(end)}`;
 }
 
+/** Monday of the week containing the date (weeks run Monday–Sunday). */
+export function weekStart(iso: IsoDate): IsoDate {
+  const day = toUtcNoon(iso).getUTCDay(); // 0 = Sunday
+  return addDays(iso, day === 0 ? -6 : 1 - day);
+}
+
+/**
+ * Groups date blocks by the week they start in, e.g. school tours on
+ * "Tue Feb 23 & Thu Feb 25" become one row.
+ */
+export function groupByWeek(blocks: DateBlock[]): { weekOf: IsoDate; blocks: DateBlock[] }[] {
+  const groups = new Map<IsoDate, DateBlock[]>();
+  for (const block of [...blocks].sort((a, b) => a.startDate.localeCompare(b.startDate))) {
+    const key = weekStart(block.startDate);
+    groups.set(key, [...(groups.get(key) ?? []), block]);
+  }
+  return [...groups].map(([weekOf, grouped]) => ({ weekOf, blocks: grouped }));
+}
+
 /** Machine-readable range for <time datetime>. */
 export const dateRangeLabelForScreenReaders = (block: DateBlock): string => {
   const end = block.endDate ?? block.startDate;

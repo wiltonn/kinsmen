@@ -5,6 +5,7 @@
  * to use this file (see src/lib/config.ts).
  *
  * Every critical item is labelled:
+ * - provenance 'confirmed': supplied directly by the club (the 2027 dates).
  * - provenance 'needsReview': copied from the previous website
  *   (kinsmenfanshawesugarbush.com, audited 2026-10-21). Real, but unconfirmed.
  * - provenance 'sample': development placeholder. NOT a real fact.
@@ -186,8 +187,10 @@ export function getFixtureContent(overrides: { bookingUrl?: string; widgetLoader
     },
 
     season: {
-      provenance: 'needsReview',
-      reviewNote: '2027 public and school dates copied from the old homepage tables. Hours, admission prices and Pancake House details were not published.',
+      // 2027 public and school tour dates supplied by the club on 2026-10-21.
+      // Hours, admission prices and Pancake House details are still unknown and left empty.
+      provenance: 'confirmed',
+      reviewNote: '2027 public and school tour dates confirmed by the club (21 Oct 2026).',
       year: 2027,
       status: 'upcoming',
       operatingDates: [
@@ -245,9 +248,10 @@ export function getFixtureContent(overrides: { bookingUrl?: string; widgetLoader
       },
       notice: undefined,
       schoolTours: {
+        // Dates are confirmed (see the season). This flag covers the intro and booking/payment details.
         provenance: 'needsReview',
         reviewNote:
-          'Dates and prices copied from the old homepage’s 2027 school tour table. Booking and payment instructions come from the 2015 teacher package.',
+          'Dates confirmed by the club. Booking and payment instructions come from the 2015 teacher package — confirm they are current.',
         intro:
           'Bring your class to see how sap becomes maple syrup: a guided walk through the sugar bush, the sugar shack and the history displays, with an optional pancake meal.',
         dates: [

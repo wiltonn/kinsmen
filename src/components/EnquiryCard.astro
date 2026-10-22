@@ -9,7 +9,7 @@ import { getSiteState } from '../lib/site';
 interface Props {
   route: EnquiryRoute;
   headingLevel?: 'h2' | 'h3';
-  variant?: 'primary' | 'secondary';
+  variant?: 'primary' | 'secondary' | 'school';
 }
 const { route, headingLevel = 'h3', variant = 'secondary' } = Astro.props;
 const { showDevNotes } = await getSiteState();
@@ -23,7 +23,7 @@ const host = route.external && route.href ? new URL(route.href).hostname.replace
       <Heading class="text-2xl font-semibold">{route.label}</Heading>
       <p class="mt-2 flex-1 text-smoke-700">{route.description}</p>
       <p class="mt-5">
-        <a href={route.href} class:list={['btn', variant === 'primary' ? 'btn-primary' : 'btn-secondary']} rel={route.external ? 'noopener' : undefined}>
+        <a href={route.href} class:list={['btn', { primary: 'btn-primary', secondary: 'btn-secondary', school: 'btn-plum' }[variant]]} rel={route.external ? 'noopener' : undefined}>
           {route.actionLabel}
           {host && <span class="sr-only">(goes to {host})</span>}
         </a>

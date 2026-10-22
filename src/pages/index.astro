@@ -5,12 +5,13 @@ import SeasonStatus from '../components/SeasonStatus.astro';
 import KeyFacts from '../components/KeyFacts.astro';
 import SectionHeading from '../components/SectionHeading.astro';
 import FaqList from '../components/FaqList.astro';
+import DateList from '../components/DateList.astro';
+import AudienceTag from '../components/AudienceTag.astro';
 import ReviewFlag from '../components/ReviewFlag.astro';
 import JsonLd from '../components/JsonLd.astro';
 import LegacyAnchors from '../components/LegacyAnchors.astro';
 import { getSiteState } from '../lib/site';
 import { getConfig } from '../lib/config';
-import { formatMonthDay } from '../lib/time';
 import { getPancakeHouseDates } from '../lib/season';
 
 const state = await getSiteState();
@@ -98,6 +99,33 @@ const placeLd =
     </div>
   </section>
 
+  <!-- 2b. Public dates: when anyone can visit -->
+  {
+    season?.operatingDates.length ? (
+      <section aria-labelledby="public-dates" class="container-page mt-16">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p class="eyebrow">Visit the Sugar Bush</p>
+            <h2 id="public-dates" class="mt-2 scroll-mt-28 text-3xl font-semibold sm:text-4xl">
+              {season.year} public dates
+            </h2>
+            <p class="mt-3 max-w-2xl text-lg text-smoke-700">The Sugar Bush is open to everyone on these days.</p>
+          </div>
+          <AudienceTag audience="public" />
+        </div>
+        <div class="mt-6">
+          <DateList dates={season.operatingDates} label={`${season.year} public dates`} audience="public" layout="tiles" />
+        </div>
+        <p class="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2 text-base">
+          <a href="/visit#dates" class="font-semibold">Hours, prices and directions</a>
+          <span class="text-smoke-700">
+            Bringing a class? <a href="#school-title" class="font-semibold !text-plum-700">School tours run on different days</a>.
+          </span>
+        </p>
+      </section>
+    ) : null
+  }
+
   <!-- 3. Pancake House -->
   <section aria-labelledby="pancake-title" class="container-page mt-20 grid items-center gap-10 lg:grid-cols-2">
     <Photo image={images.pancakeHouse} sizes="(min-width: 1024px) 560px, 100vw" class="rounded-[var(--radius-card)]" placeholderLabel="Pancake House" />
@@ -151,30 +179,37 @@ const placeLd =
     </div>
   </section>
 
-  <!-- 5. School and group tours -->
-  <section aria-labelledby="school-title" class="container-page mt-20 grid gap-10 lg:grid-cols-2 lg:items-center">
-    <div class="lg:order-2">
-      <Photo image={images.schoolTours} sizes="(min-width: 1024px) 560px, 100vw" class="rounded-[var(--radius-card)]" />
-    </div>
-    <div>
-      <SectionHeading
-        eyebrow="School and group tours"
-        title="A field trip students remember"
-        id="school-title"
-        intro={season?.schoolTours?.intro}
-      />
-      {
-        upcomingSchoolDates.length > 0 && (
-          <p class="mt-4 text-lg">
-            <strong>{season?.year} school tour days:</strong>{' '}
-            {upcomingSchoolDates.map((d) => formatMonthDay(d.startDate)).join(', ')}.
-          </p>
-        )
-      }
-      <p class="mt-6 flex flex-wrap gap-3">
-        <a href="/school-group-tours" class="btn btn-primary">School tour details</a>
-        {season?.schoolTours?.downloads[0] && <a href={season.schoolTours.downloads[0].url} class="btn btn-secondary">Teacher’s guide (PDF)</a>}
-      </p>
+  <!-- 5. School and group tours: deliberately styled apart from the public dates -->
+  <section aria-labelledby="school-title" class="container-page mt-20">
+    <div class="grid gap-10 rounded-[var(--radius-card)] bg-plum-50 p-6 ring-1 ring-plum-100 sm:p-10 lg:grid-cols-[1.15fr_1fr] lg:items-start">
+      <div>
+        <div class="flex flex-wrap items-center gap-3">
+          <p class="eyebrow !text-plum-700">For teachers and school groups</p>
+          <AudienceTag audience="school" />
+        </div>
+        <h2 id="school-title" class="mt-3 scroll-mt-28 text-3xl font-semibold !text-plum-800 sm:text-4xl">School tours</h2>
+        {season?.schoolTours?.intro && <p class="mt-4 text-lg text-smoke-700">{season.schoolTours.intro}</p>}
+        <p class="mt-4 text-base text-plum-800">
+          School tour days are for school groups that book ahead. Visiting with family or friends?
+          <a href="#public-dates" class="font-semibold !text-plum-800">See the public dates</a>.
+        </p>
+        <p class="mt-6 flex flex-wrap gap-3">
+          <a href="/school-group-tours" class="btn btn-plum">School tour details and booking</a>
+          {season?.schoolTours?.downloads[0] && <a href={season.schoolTours.downloads[0].url} class="btn btn-plum-outline">Teacher’s guide (PDF)</a>}
+        </p>
+      </div>
+      <div>
+        {
+          upcomingSchoolDates.length > 0 ? (
+            <>
+              <p class="mb-3 font-sans text-lg font-bold text-plum-800">{season?.year} school tour days</p>
+              <DateList dates={upcomingSchoolDates} label={`${season?.year} school tour dates`} audience="school" />
+            </>
+          ) : (
+            <Photo image={images.schoolTours} sizes="(min-width: 1024px) 460px, 100vw" class="rounded-[var(--radius-card)]" />
+          )
+        }
+      </div>
     </div>
   </section>
 

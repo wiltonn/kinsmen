@@ -1,7 +1,7 @@
 /**
  * Preview-only: exports the migrated fixture content as Sanity NDJSON, so the
- * club doesn't retype menus and dates. Every document is imported as
- * "Needs review". Sample (made-up) content is never exported.
+ * club doesn't retype menus and dates. Documents keep their review status
+ * (only club-confirmed facts arrive as "Confirmed"). Sample content is never exported.
  *
  *   CONTENT_SOURCE=fixtures npm run build
  *   cd studio && npx sanity dataset import ../dist/dev/sanity-seed.ndjson production
@@ -22,7 +22,10 @@ export function getStaticPaths() {
 
 const root = resolve(fileURLToPath(new URL('../../../', import.meta.url)));
 const notSample = <T extends Reviewable>(item: T) => item.provenance !== 'sample';
-const review = (item?: Reviewable) => ({ reviewStatus: 'needsReview', reviewNote: item?.reviewNote });
+const review = (item?: Reviewable) => ({
+  reviewStatus: item?.provenance === 'confirmed' ? 'confirmed' : 'needsReview',
+  reviewNote: item?.reviewNote,
+});
 const key = (i: number) => `k${i}`;
 const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60);
 const ref = (id: string, i?: number) => ({ _type: 'reference', _ref: id, ...(i !== undefined ? { _key: key(i) } : {}) });

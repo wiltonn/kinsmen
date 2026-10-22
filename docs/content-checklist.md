@@ -1,13 +1,13 @@
 # Content verification and migration checklist
 
 The previous website (Wix, audited **21 October 2026**) was treated as _migration input, not verified fact_.
-Everything copied from it is marked **Needs review** in the fixtures and in the Sanity seed import. Nothing has
-been confirmed by the club yet.
+Everything copied from it is marked **Needs review** in the fixtures and in the Sanity seed import. Only the
+2027 public and school tour dates have been confirmed by the club so far (21 Oct 2026).
 
 In any preview build, `/dev/content-review` lists every unconfirmed item. A production build with
 `STRICT_CONTENT_REVIEW=true` refuses to publish while any remain.
 
-Legend: ☐ to do · **Decision** = the club must choose, not just check.
+Legend: ☐ to do · ✅ confirmed · **Decision** = the club must choose, not just check.
 
 ## 1. Required decisions before launch
 
@@ -26,8 +26,8 @@ Legend: ☐ to do · **Decision** = the club must choose, not just check.
 
 | | Fact (as migrated) | Source |
 | --- | --- | --- |
-| ☐ | Public dates: Family Day weekend Feb 13–15 (Sat–Mon); Feb 27–28; Mar 6–7; Mar 13–14; March Break Mar 15–19 (Mon–Fri); Mar 20–21 | Old homepage, embedded “2027 Public Dates” table |
-| ☐ | School tour dates (Tue & Thu): Feb 23, 25; Mar 2, 4; Mar 9, 11; Mar 23, 25 | Old homepage, “2027 School Tour Dates” table |
+| ✅ | Public dates: Family Day weekend Feb 13–15 (Sat–Mon); Feb 27–28; Mar 6–7; Mar 13–14; March Break Mar 15–19 (Mon–Fri); Mar 20–21 | **Confirmed by the club, 21 Oct 2026** (matches the old homepage table) |
+| ✅ | School tour dates (Tue & Thu): Feb 23, 25; Mar 2, 4; Mar 9, 11; Mar 23, 25 | **Confirmed by the club, 21 Oct 2026** (matches the old homepage table) |
 | ☐ | Tour pricing: 2 pancakes, hot chocolate, maple bud $9.00; 1 pancake, hot chocolate, maple bud $8.25; walking tour + maple bud $6.50; walking tour only $6.00 | Old homepage, “Tour Pricing” table |
 | ☐ | “The fee covers parking and the tour, plus your pancake meal if you choose a meal option.” | Old homepage note |
 | ☐ | School booking: call (519) 461-1073; cheques payable to the Kinsmen Club of Greater London | 2015 teacher package |

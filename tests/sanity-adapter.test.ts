@@ -51,8 +51,9 @@ describe('Sanity adapter with seeded content', async () => {
   const content = mapSanityContent(emulateQuery(docs), { projectId: 'test', dataset: 'production' });
   const fixtures = getFixtureContent();
 
-  it('exports no sample content and imports everything as needs review', () => {
-    expect(docs.every((d) => !d.reviewStatus || d.reviewStatus === 'needsReview')).toBe(true);
+  it('exports no sample content and keeps review statuses', () => {
+    const confirmed = docs.filter((d) => d.reviewStatus === 'confirmed').map((d) => d._id);
+    expect(confirmed).toEqual(['season-2027']);
     expect(JSON.stringify(docs)).not.toMatch(/SAMPLE|\[Sample/);
   });
 
@@ -82,7 +83,8 @@ describe('Sanity adapter with seeded content', async () => {
     expect(content.stories[0].bodyHtml).toContain('<p>');
   });
 
-  it('flags everything for review until an editor confirms it', () => {
+  it('flags everything else for review until an editor confirms it', () => {
+    expect(content.season?.provenance).toBe('confirmed');
     expect(collectReviewItems(content).every((i) => i.provenance === 'needsReview')).toBe(true);
     expect(collectReviewItems(content).length).toBeGreaterThan(20);
   });

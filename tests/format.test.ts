@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { formatPrice, formatTime, phoneHref } from '../src/lib/format';
-import { expandDateBlocks, formatDateRange, formatWeekdayRange, isIsoDate, torontoDate } from '../src/lib/time';
+import { expandDateBlocks, formatDateRange, formatWeekdayRange, groupByWeek, isIsoDate, torontoDate, weekStart } from '../src/lib/time';
 
 describe('format', () => {
   it('formats Canadian prices', () => {
@@ -37,6 +37,20 @@ describe('time', () => {
     expect(formatWeekdayRange({ startDate: '2027-02-13', endDate: '2027-02-15' })).toBe('Sat – Mon');
     expect(formatWeekdayRange({ startDate: '2027-03-15', endDate: '2027-03-19' })).toBe('Mon – Fri');
     expect(formatDateRange({ startDate: '2027-02-27', endDate: '2027-03-01' })).toBe('Feb 27 – Mar 1');
+  });
+  it('groups school days into Monday–Sunday weeks', () => {
+    expect(weekStart('2027-02-25')).toBe('2027-02-22');
+    expect(weekStart('2027-02-28')).toBe('2027-02-22'); // Sunday
+    const weeks = groupByWeek([
+      { startDate: '2027-03-04' },
+      { startDate: '2027-02-23' },
+      { startDate: '2027-03-02' },
+      { startDate: '2027-02-25' },
+    ]);
+    expect(weeks.map((w) => w.blocks.map((b) => b.startDate))).toEqual([
+      ['2027-02-23', '2027-02-25'],
+      ['2027-03-02', '2027-03-04'],
+    ]);
   });
   it('rejects backwards ranges', () => {
     expect(() => expandDateBlocks([{ startDate: '2027-03-02', endDate: '2027-03-01' }])).toThrow();

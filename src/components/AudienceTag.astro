@@ -1,0 +1,29 @@
+---
+/**
+ * Says who a set of dates is for. Public dates are always red and school tour
+ * dates always purple, everywhere on the site, so the two are never confused.
+ */
+interface Props {
+  audience: 'public' | 'school';
+  class?: string;
+}
+const { audience, class: className } = Astro.props;
+const label = audience === 'public' ? 'Open to the public' : 'School groups only';
+---
+
+<span
+  class:list={[
+    'inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-sans text-sm font-bold',
+    audience === 'public' ? 'bg-kin-50 text-kin-800 ring-1 ring-kin-100' : 'bg-plum-50 text-plum-800 ring-1 ring-plum-100',
+    className,
+  ]}
+>
+  {
+    audience === 'public' ? (
+      <svg aria-hidden="true" viewBox="0 0 20 20" class="h-4 w-4"><path fill="currentColor" d="M7 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm6.5 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5ZM1 16c0-3 2.7-5 6-5s6 2 6 5v1H1v-1Zm13 1v-1c0-1.4-.4-2.6-1.2-3.6.5-.1 1-.2 1.7-.2 2.6 0 4.5 1.5 4.5 3.8v1H14Z" /></svg>
+    ) : (
+      <svg aria-hidden="true" viewBox="0 0 20 20" class="h-4 w-4"><path fill="currentColor" d="M10 2 1 6.5 10 11l7-3.5V13h2V6.5L10 2ZM4 10.3V14c0 1.7 2.7 3 6 3s6-1.3 6-3v-3.7L10 13.3l-6-3Z" /></svg>
+    )
+  }
+  {label}
+</span>

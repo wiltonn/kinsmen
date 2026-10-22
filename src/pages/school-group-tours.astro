@@ -3,6 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PageHeader from '../components/PageHeader.astro';
 import SectionHeading from '../components/SectionHeading.astro';
 import DateList from '../components/DateList.astro';
+import AudienceTag from '../components/AudienceTag.astro';
 import PriceTable from '../components/PriceTable.astro';
 import DownloadList from '../components/DownloadList.astro';
 import EnquiryCard from '../components/EnquiryCard.astro';
@@ -33,21 +34,31 @@ const faqs = [...(season?.faqs ?? []), ...content.generalFaqs].filter((f) => f.t
   <div class="container-page mt-14 grid gap-16">
     <section aria-labelledby="school-dates" class="grid gap-8 lg:grid-cols-2">
       <div>
-        <SectionHeading title={`${season?.year ?? ''} school tour dates`.trim()} id="school-dates" />
+        <SectionHeading eyebrow="For teachers and school groups" title={`${season?.year ?? ''} school tour dates`.trim()} id="school-dates" />
         {school?.hours && <p class="mt-4 text-lg">Tours run {formatHours(school.hours)}.</p>}
         {school?.howToBook && <p class="mt-4 text-lg text-smoke-700">{school.howToBook}</p>}
         <div class="mt-6">
-          <EnquiryCard route={settings.enquiries.schoolTours} variant="primary" />
+          <EnquiryCard route={settings.enquiries.schoolTours} variant="school" />
         </div>
       </div>
       <div>
         {
           school?.dates.length ? (
-            <DateList dates={school.dates} label={`${season?.year} school tour dates`} year={season?.year} />
+            <>
+              <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <p class="font-sans text-lg font-bold">{season?.year} school tour days</p>
+                <AudienceTag audience="school" />
+              </div>
+              <DateList dates={school.dates} label={`${season?.year} school tour dates`} audience="school" />
+            </>
           ) : (
             <p class="card text-lg">School tour dates for the next season haven’t been announced yet.</p>
           )
         }
+        <p class="mt-4 rounded-xl bg-kin-50 px-4 py-3 text-base text-kin-800 ring-1 ring-kin-100">
+          <strong>These are school tour days, not public dates.</strong> Visiting with family or friends?
+          <a href="/visit#dates" class="font-semibold !text-kin-800">See the public dates</a>
+        </p>
       </div>
     </section>
 

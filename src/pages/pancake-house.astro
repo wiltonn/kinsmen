@@ -101,7 +101,7 @@ const faqs = [...(season?.faqs ?? []), ...content.generalFaqs].filter((f) => f.t
       <div>
         {
           dates?.length ? (
-            <DateList dates={dates} label={`${season?.year} Pancake House dates`} year={season?.year} />
+            <DateList dates={dates} label={`${season?.year} Pancake House dates`} audience="public" />
           ) : (
             <p class="card text-lg">
               Pancake House dates for {season?.year ?? 'the next season'} haven’t been announced yet.

@@ -17,7 +17,7 @@ const dates =
     ? `${formatMonthDay(seasonView.firstDate)} – ${formatMonthDay(seasonView.lastDate)}, ${season?.year}`
     : 'To be announced';
 const publicDays = season ? expandDateBlocks(season.operatingDates).length : 0;
-const datesDetail = publicDays ? `${publicDays} public days — see the full list` : undefined;
+const datesDetail = publicDays ? `${publicDays} public days — see the dates below` : undefined;
 
 const hours = season?.operatingHours ? formatHours(season.operatingHours) : 'To be confirmed';
 
@@ -34,7 +34,7 @@ const pancake = reservationView.canBook
       : 'Details to be announced';
 
 const facts = [
-  { term: 'When', value: dates, detail: datesDetail, href: '/visit#dates' },
+  { term: 'When', value: dates, detail: datesDetail, href: '#public-dates' },
   { term: 'Hours', value: hours, detail: season?.operatingHours?.note, href: '/visit#dates' },
   { term: 'Admission', value: admission, detail: undefined, href: '/visit#prices' },
   { term: 'Pancake House', value: pancake, detail: 'Tables reserved on OpenTable', href: '/pancake-house#reserve' },

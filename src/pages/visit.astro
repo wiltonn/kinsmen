@@ -4,6 +4,7 @@ import PageHeader from '../components/PageHeader.astro';
 import SectionHeading from '../components/SectionHeading.astro';
 import SeasonStatus from '../components/SeasonStatus.astro';
 import DateList from '../components/DateList.astro';
+import AudienceTag from '../components/AudienceTag.astro';
 import PriceTable from '../components/PriceTable.astro';
 import FaqList from '../components/FaqList.astro';
 import DownloadList from '../components/DownloadList.astro';
@@ -76,8 +77,15 @@ const visitFaqs = [...(season?.faqs ?? []), ...content.generalFaqs].filter((f) =
         {
           season?.operatingDates.length ? (
             <>
-              <h3 class="mb-3 font-sans text-lg font-bold">{season.year} public dates</h3>
-              <DateList dates={season.operatingDates} label={`${season.year} public dates`} year={season.year} />
+              <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <h3 class="font-sans text-lg font-bold">{season.year} public dates</h3>
+                <AudienceTag audience="public" />
+              </div>
+              <DateList dates={season.operatingDates} label={`${season.year} public dates`} audience="public" />
+              <p class="mt-4 rounded-xl bg-plum-50 px-4 py-3 text-base text-plum-800 ring-1 ring-plum-100">
+                <strong>Planning a class trip?</strong> School tours run on different days.
+                <a href="/school-group-tours#school-dates" class="font-semibold !text-plum-800">See school tour dates</a>
+              </p>
             </>
           ) : (
             <p class="card text-lg">Public dates for the next season haven’t been announced yet. Check back soon.</p>
