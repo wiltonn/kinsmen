@@ -16,7 +16,7 @@ const land = settings.landAcknowledgement;
   description="The Kinsmen Club of Greater London runs the Kinsmen Fanshawe Sugar Bush as its main fundraiser. Learn about the club, Kin Canada and our land acknowledgement."
 >
   <PageHeader eyebrow="About the Kinsmen" title={settings.organizationName} intro={kinsmen.intro[0]}>
-    {kinsmen.intro.slice(1).map((p) => <p class="mt-4 max-w-2xl text-lg text-bark-700">{p}</p>)}
+    {kinsmen.intro.slice(1).map((p) => <p class="mt-4 max-w-2xl text-lg text-smoke-700">{p}</p>)}
   </PageHeader>
 
   <div class="container-page mt-14 grid gap-16">
@@ -27,9 +27,9 @@ const land = settings.landAcknowledgement;
         <dl class="mt-6 grid gap-5">
           {
             kinsmen.clubFacts.items.map((fact) => (
-              <div class="border-l-4 border-maple-400 pl-4">
-                <dt class="font-display text-xl font-semibold text-forest-900">{fact.title}</dt>
-                <dd class="mt-1 text-bark-700">{fact.body}</dd>
+              <div class="border-l-4 border-kin-500 pl-4">
+                <dt class="font-display text-xl font-semibold text-ink">{fact.title}</dt>
+                <dd class="mt-1 text-smoke-700">{fact.body}</dd>
               </div>
             ))
           }
@@ -49,7 +49,7 @@ const land = settings.landAcknowledgement;
             {kinsmen.recognition.map((r) => (
               <li class="card">
                 <h3 class="text-2xl font-semibold">{r.title}</h3>
-                <p class="mt-2 text-bark-700">{r.body}</p>
+                <p class="mt-2 text-smoke-700">{r.body}</p>
                 <ReviewFlag item={r} class="mt-3" />
               </li>
             ))}
@@ -60,21 +60,21 @@ const land = settings.landAcknowledgement;
 
     <section aria-labelledby="kinsmen-next" class="grid gap-6 md:grid-cols-2">
       <h2 id="kinsmen-next" class="sr-only">More about our club</h2>
-      <a href="/kinsmen/community-impact" class="card group block no-underline hover:ring-maple-400">
+      <a href="/kinsmen/community-impact" class="card group block no-underline hover:ring-kin-500">
         <span class="eyebrow">Community impact</span>
-        <span class="mt-2 block font-display text-2xl font-semibold text-forest-900 group-hover:underline">Where your visit goes</span>
-        <span class="mt-2 block text-bark-700">The causes and organizations our club supports.</span>
+        <span class="mt-2 block font-display text-2xl font-semibold text-ink group-hover:underline">Where your visit goes</span>
+        <span class="mt-2 block text-smoke-700">The causes and organizations our club supports.</span>
       </a>
-      <a href="/kinsmen/get-involved" class="card group block no-underline hover:ring-maple-400">
+      <a href="/kinsmen/get-involved" class="card group block no-underline hover:ring-kin-500">
         <span class="eyebrow">Get involved</span>
-        <span class="mt-2 block font-display text-2xl font-semibold text-forest-900 group-hover:underline">Volunteer or become a member</span>
-        <span class="mt-2 block text-bark-700">Lend a hand at the Sugar Bush or join the club.</span>
+        <span class="mt-2 block font-display text-2xl font-semibold text-ink group-hover:underline">Volunteer or become a member</span>
+        <span class="mt-2 block text-smoke-700">Lend a hand at the Sugar Bush or join the club.</span>
       </a>
     </section>
 
     {
       land && (
-        <section aria-labelledby="land-acknowledgement" class="rounded-[var(--radius-card)] bg-forest-50 p-6 ring-1 ring-forest-100 sm:p-10">
+        <section aria-labelledby="land-acknowledgement" class="rounded-[var(--radius-card)] bg-plum-50 p-6 ring-1 ring-plum-100 sm:p-10">
           <SectionHeading title="Land acknowledgement" id="land-acknowledgement" />
           <ReviewFlag item={land} class="mt-3" />
           <div class="prose-site mt-6 max-w-3xl text-lg">

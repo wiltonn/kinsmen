@@ -17,13 +17,13 @@ const payload = season ? JSON.stringify({ year: season.year, status: season.stat
 ---
 
 <div data-season-status={payload} data-phase={seasonView.phase} role="status" class:list={[tone === 'dark' && 'on-dark']}>
-  <p class:list={['flex items-center gap-2 font-sans text-sm font-bold tracking-[0.12em] uppercase', tone === 'dark' ? 'text-maple-100' : 'text-maple-700']}>
+  <p class:list={['flex items-center gap-2 font-sans text-sm font-bold tracking-[0.12em] uppercase', tone === 'dark' ? 'text-kin-100' : 'text-kin-600']}>
     <span class="season-dot inline-block h-2.5 w-2.5 rounded-full" aria-hidden="true"></span>
     Season status
   </p>
-  <p class:list={['mt-1 font-display text-2xl font-semibold sm:text-3xl', tone === 'dark' ? 'text-white' : 'text-forest-900']} data-season-headline>
+  <p class:list={['mt-1 font-display text-2xl font-semibold sm:text-3xl', tone === 'dark' ? 'text-white' : 'text-ink']} data-season-headline>
     {seasonView.headline}
   </p>
-  <p class:list={['mt-1', tone === 'dark' ? 'text-cream-100' : 'text-bark-700']} data-season-detail>{seasonView.detail}</p>
+  <p class:list={['mt-1', tone === 'dark' ? 'text-paper-100' : 'text-smoke-700']} data-season-detail>{seasonView.detail}</p>
   {season && <ReviewFlag item={season} class="mt-2" />}
 </div>

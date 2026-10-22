@@ -8,15 +8,15 @@ interface Props {
 const { eyebrow, title, intro, breadcrumbs } = Astro.props;
 ---
 
-<div class="border-b border-cream-300 bg-cream-200/60">
+<div class="border-b border-paper-300 bg-paper-200/60">
   <div class="container-page py-12 sm:py-16">
     {
       breadcrumbs?.length ? (
         <nav aria-label="Breadcrumb" class="mb-4 font-sans text-sm">
-          <ol class="flex flex-wrap items-center gap-2 text-bark-600">
+          <ol class="flex flex-wrap items-center gap-2 text-smoke-600">
             {breadcrumbs.map((crumb) => (
               <li class="flex items-center gap-2">
-                <a href={crumb.href} class="text-bark-700">{crumb.name}</a>
+                <a href={crumb.href} class="text-smoke-700">{crumb.name}</a>
                 <span aria-hidden="true">/</span>
               </li>
             ))}
@@ -27,7 +27,7 @@ const { eyebrow, title, intro, breadcrumbs } = Astro.props;
     }
     {eyebrow && <p class="eyebrow mb-3">{eyebrow}</p>}
     <h1 class="max-w-3xl text-4xl font-semibold sm:text-5xl">{title}</h1>
-    {intro && <p class="mt-5 max-w-2xl text-xl text-bark-700">{intro}</p>}
+    {intro && <p class="mt-5 max-w-2xl text-xl text-smoke-700">{intro}</p>}
     <slot />
   </div>
 </div>

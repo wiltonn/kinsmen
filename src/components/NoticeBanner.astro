@@ -8,7 +8,7 @@ const important = notice.level === 'important';
 ---
 
 <aside
-  class:list={['font-sans', important ? 'bg-maple-700 text-white on-dark' : 'bg-maple-100 text-ink']}
+  class:list={['font-sans', important ? 'bg-kin-700 text-white on-dark' : 'bg-kin-100 text-ink']}
   aria-label="Visitor notice"
   data-expires={notice.expiresAt}
 >
@@ -18,7 +18,7 @@ const important = notice.level === 'important';
     </p>
     {
       notice.linkUrl && (
-        <a href={notice.linkUrl} class:list={['font-bold', important ? 'text-white hover:text-cream-100' : '']}>
+        <a href={notice.linkUrl} class:list={['font-bold', important ? 'text-white hover:text-paper-100' : '']}>
           {notice.linkLabel ?? 'Details'}
         </a>
       )

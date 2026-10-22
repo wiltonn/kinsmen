@@ -12,7 +12,7 @@ const { downloads } = Astro.props;
   {
     downloads.map((d) => (
       <li class="card flex flex-col gap-3 sm:flex-row sm:items-start">
-        <svg aria-hidden="true" viewBox="0 0 24 24" class="h-10 w-10 shrink-0 text-maple-700">
+        <svg aria-hidden="true" viewBox="0 0 24 24" class="h-10 w-10 shrink-0 text-kin-600">
           <path fill="currentColor" d="M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7 1.5V9h5.5L13 3.5ZM8 13v2h8v-2H8Zm0 4v2h5v-2H8Z" />
         </svg>
         <div class="flex-1">
@@ -21,8 +21,8 @@ const { downloads } = Astro.props;
               {d.title}
             </a>
           </p>
-          {d.description && <p class="mt-1 text-bark-700">{d.description}</p>}
-          <p class="mt-1 text-sm text-bark-600">
+          {d.description && <p class="mt-1 text-smoke-700">{d.description}</p>}
+          <p class="mt-1 text-sm text-smoke-600">
             PDF{d.fileSizeLabel && `, ${d.fileSizeLabel}`} · {d.languageLabel}
             {d.year && ` · ${d.year} edition`}
           </p>

@@ -20,24 +20,31 @@ const contrast = (a: string, b: string) => {
 const WHITE = '#ffffff';
 // [foreground, background, minimum] for every text pairing the design uses.
 const pairs: [string, string, number][] = [
-  ['ink', 'cream-100', 4.5],
-  ['ink', 'cream-50', 4.5],
-  ['bark-700', 'cream-100', 4.5],
-  ['bark-600', 'cream-50', 4.5],
-  ['bark-600', 'cream-200', 4.5],
-  ['maple-700', 'cream-100', 4.5], // links, eyebrows
-  ['maple-700', 'cream-50', 4.5],
-  ['maple-800', 'maple-100', 4.5], // date labels
-  ['maple-800', 'maple-50', 4.5], // review flags
-  ['forest-900', 'cream-100', 4.5],
-  ['forest-700', 'cream-50', 4.5],
-  ['cream-100', 'forest-900', 4.5], // dark sections
-  ['maple-100', 'forest-900', 4.5],
-  ['maple-100', 'forest-800', 4.5],
-  ['forest-900', 'cream-50', 4.5], // light buttons
+  ['ink', 'paper-50', 4.5],
+  ['ink', 'paper-100', 4.5],
+  ['ink', 'paper-200', 4.5],
+  ['smoke-700', 'paper-100', 4.5],
+  ['smoke-700', 'paper-200', 4.5],
+  ['smoke-600', 'paper-50', 4.5],
+  ['smoke-600', 'paper-200', 4.5],
+  ['kin-500', 'paper-50', 3], // h1/h2 in brand red: large text only
+  ['kin-500', 'paper-100', 3],
+  ['kin-500', 'paper-200', 3],
+  ['kin-600', 'paper-50', 4.5], // links, eyebrows, small red text
+  ['kin-600', 'paper-100', 4.5],
+  ['kin-600', 'paper-200', 4.5],
+  ['kin-700', 'paper-50', 4.5], // secondary button text
+  ['kin-800', 'kin-100', 4.5], // date labels
+  ['kin-800', 'kin-50', 4.5], // review flags
+  ['plum-700', 'paper-50', 4.5], // activity notes
+  ['paper-100', 'plum-800', 4.5], // purple panels
+  ['kin-100', 'plum-800', 4.5],
+  ['kin-100', 'kin-700', 4.5], // footer headings
+  ['ink', 'paper-50', 4.5], // light buttons
   ['alert-700', 'alert-50', 4.5],
-  ['maple-600', 'cream-100', 3], // focus outline (non-text, 1.4.11)
-  ['maple-300', 'forest-900', 3], // focus outline on dark
+  ['plum-700', 'paper-50', 3], // focus outline (non-text, 1.4.11)
+  ['plum-700', 'paper-200', 3],
+  ['go', 'paper-50', 3], // "open" status dot (non-text)
 ];
 
 describe('colour contrast (WCAG 2.2 AA)', () => {
@@ -45,7 +52,7 @@ describe('colour contrast (WCAG 2.2 AA)', () => {
     expect(contrast(token(fg), token(bg))).toBeGreaterThanOrEqual(min);
   });
 
-  it.each(['maple-700', 'maple-800', 'forest-700', 'forest-800', 'forest-900'])('white text on %s ≥ 4.5:1', (bg) => {
+  it.each(['kin-700', 'kin-800', 'plum-700', 'plum-800', 'plum-900'])('white text on %s ≥ 4.5:1', (bg) => {
     expect(contrast(WHITE, token(bg))).toBeGreaterThanOrEqual(4.5);
   });
 });

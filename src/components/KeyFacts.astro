@@ -42,16 +42,16 @@ const facts = [
 ];
 ---
 
-<dl class="grid gap-px overflow-hidden rounded-2xl bg-cream-300 ring-1 ring-cream-300 sm:grid-cols-2 lg:grid-cols-5">
+<dl class="grid gap-px overflow-hidden rounded-2xl bg-paper-300 ring-1 ring-paper-300 sm:grid-cols-2 lg:grid-cols-5">
   {
     facts.map((fact) => (
-      <div class="relative bg-cream-50 p-5">
-        <dt class="font-sans text-sm font-bold tracking-wide text-maple-700 uppercase">{fact.term}</dt>
+      <div class="relative bg-paper-50 p-5">
+        <dt class="font-sans text-sm font-bold tracking-wide text-kin-600 uppercase">{fact.term}</dt>
         <dd class="mt-1">
-          <a href={fact.href} class="font-display text-xl leading-snug font-semibold text-forest-900 no-underline after:absolute after:inset-0 hover:underline">
+          <a href={fact.href} class="font-display text-xl leading-snug font-semibold text-ink no-underline after:absolute after:inset-0 hover:underline">
             {fact.value}
           </a>
-          {fact.detail && <span class="mt-1 block text-base text-bark-600">{fact.detail}</span>}
+          {fact.detail && <span class="mt-1 block text-base text-smoke-600">{fact.detail}</span>}
         </dd>
       </div>
     ))

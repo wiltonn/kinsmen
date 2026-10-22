@@ -11,7 +11,7 @@ const { menu } = Astro.props;
 
 <div>
   <ReviewFlag item={menu} />
-  {menu.intro && <p class="mt-3 text-lg text-bark-700">{menu.intro}</p>}
+  {menu.intro && <p class="mt-3 text-lg text-smoke-700">{menu.intro}</p>}
   <div class="mt-6 grid gap-8 md:grid-cols-2">
     {
       menu.categories.map((category) => (
@@ -19,14 +19,14 @@ const { menu } = Astro.props;
           <h3 id={`menu-${category.title.replace(/\W+/g, '-').toLowerCase()}`} class="text-2xl font-semibold">
             {category.title}
           </h3>
-          {category.description && <p class="mt-1 text-bark-700">{category.description}</p>}
-          <dl class="mt-4 divide-y divide-dashed divide-cream-300">
+          {category.description && <p class="mt-1 text-smoke-700">{category.description}</p>}
+          <dl class="mt-4 divide-y divide-dashed divide-paper-300">
             {category.items.map((item) => (
               <div class="flex flex-wrap items-baseline justify-between gap-x-4 py-2.5">
                 <dt class="font-semibold">
                   {item.name}
-                  {item.description && <span class="block text-sm font-normal text-bark-600">{item.description}</span>}
-                  {item.dietaryNote && <span class="block text-sm font-normal text-forest-700">{item.dietaryNote}</span>}
+                  {item.description && <span class="block text-sm font-normal text-smoke-600">{item.description}</span>}
+                  {item.dietaryNote && <span class="block text-sm font-normal text-plum-700">{item.dietaryNote}</span>}
                 </dt>
                 <dd class="font-semibold tabular-nums">
                   {item.variants?.length

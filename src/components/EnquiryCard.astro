@@ -21,14 +21,14 @@ const host = route.external && route.href ? new URL(route.href).hostname.replace
   route.href ? (
     <div class="card flex h-full flex-col">
       <Heading class="text-2xl font-semibold">{route.label}</Heading>
-      <p class="mt-2 flex-1 text-bark-700">{route.description}</p>
+      <p class="mt-2 flex-1 text-smoke-700">{route.description}</p>
       <p class="mt-5">
         <a href={route.href} class:list={['btn', variant === 'primary' ? 'btn-primary' : 'btn-secondary']} rel={route.external ? 'noopener' : undefined}>
           {route.actionLabel}
           {host && <span class="sr-only">(goes to {host})</span>}
         </a>
       </p>
-      {host === 'docs.google.com' && <p class="mt-3 text-sm text-bark-600">Opens a Google Form.</p>}
+      {host === 'docs.google.com' && <p class="mt-3 text-sm text-smoke-600">Opens a Google Form.</p>}
     </div>
   ) : (
     showDevNotes && (

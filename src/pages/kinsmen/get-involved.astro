@@ -36,13 +36,13 @@ const crumbs = [{ name: 'About the Kinsmen', href: '/kinsmen' }];
       <div>
         <SectionHeading eyebrow="Volunteering" title="Lend a hand at the Sugar Bush" id="volunteer" />
         <ReviewFlag item={kinsmen.volunteering} class="mt-3" />
-        {kinsmen.volunteering.intro.map((p) => <p class="mt-4 text-lg text-bark-700">{p}</p>)}
+        {kinsmen.volunteering.intro.map((p) => <p class="mt-4 text-lg text-smoke-700">{p}</p>)}
         <ul class="mt-8 grid gap-4 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
           {
             kinsmen.volunteering.reasons.map((r) => (
-              <li class="rounded-2xl bg-maple-50 p-5 ring-1 ring-maple-100">
+              <li class="rounded-2xl bg-kin-50 p-5 ring-1 ring-kin-100">
                 <h3 class="font-sans text-lg font-bold">{r.title}</h3>
-                <p class="mt-1 text-base text-bark-700">{r.body}</p>
+                <p class="mt-1 text-base text-smoke-700">{r.body}</p>
               </li>
             ))
           }
@@ -58,13 +58,13 @@ const crumbs = [{ name: 'About the Kinsmen', href: '/kinsmen' }];
       <div>
         <SectionHeading eyebrow="Membership" title="Join the Kinsmen Club of Greater London" id="membership" />
         <ReviewFlag item={kinsmen.membership} class="mt-3" />
-        {kinsmen.membership.intro.map((p) => <p class="mt-4 text-lg text-bark-700">{p}</p>)}
+        {kinsmen.membership.intro.map((p) => <p class="mt-4 text-lg text-smoke-700">{p}</p>)}
         {
           kinsmen.membership.steps.length > 0 && (
             <ol class="mt-6 grid gap-4">
               {kinsmen.membership.steps.map((step, i) => (
                 <li class="flex gap-4">
-                  <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-forest-800 font-bold text-white" aria-hidden="true">
+                  <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-plum-900 font-bold text-white" aria-hidden="true">
                     {i + 1}
                   </span>
                   <span class="pt-1.5 text-lg">{step}</span>
@@ -78,7 +78,7 @@ const crumbs = [{ name: 'About the Kinsmen', href: '/kinsmen' }];
         <EnquiryCard route={membership} variant="primary" />
         {
           sharedForm && (
-            <p class="text-base text-bark-700">
+            <p class="text-base text-smoke-700">
               Volunteering and membership use the same short interest form. Tick the options that interest you and a
               club member will get in touch.
             </p>

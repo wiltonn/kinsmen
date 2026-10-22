@@ -8,15 +8,17 @@ const path = Astro.url.pathname;
 const showReserve = reservationView.showHeaderCta;
 ---
 
-<header class="sticky top-0 z-50 border-b border-cream-300 bg-cream-50/95 backdrop-blur supports-[backdrop-filter]:bg-cream-50/85">
+<header class="sticky top-0 z-50 border-b border-paper-300 bg-paper-50/95 backdrop-blur supports-[backdrop-filter]:bg-paper-50/85">
   <div class="container-page flex min-h-18 items-center justify-between gap-4 py-2">
-    <a href="/" class="flex items-center gap-3 rounded-md text-forest-900 no-underline hover:text-forest-900">
-      <Logo class="h-11 w-11 shrink-0" />
+    <a href="/" class="flex items-center gap-3 rounded-md text-ink no-underline hover:text-ink">
+      <Logo variant="emblem" height={44} priority alt="" class="h-11 w-auto shrink-0 sm:hidden" />
+      <Logo variant="lockup" height={50} priority alt="Kinsmen Club of Greater London" class="hidden h-[50px] w-auto shrink-0 sm:block" />
+      <span class="hidden h-10 w-px bg-paper-300 sm:block" aria-hidden="true"></span>
       <span class="font-display text-lg leading-tight font-semibold sm:text-xl">
-        <span class="block text-sm font-normal tracking-wide text-bark-600 sm:text-base">Kinsmen Fanshawe</span>
+        <span class="block text-sm font-normal tracking-wide text-smoke-600 sm:text-base">Kinsmen Fanshawe</span>
         Sugar Bush
       </span>
-      <span class="sr-only">— {content.settings.siteName} home</span>
+      <span class="sr-only">, {content.settings.siteName} home</span>
     </a>
 
     <!-- Desktop navigation -->
@@ -30,8 +32,8 @@ const showReserve = reservationView.showHeaderCta;
                 <button
                   type="button"
                   class:list={[
-                    'flex min-h-11 items-center gap-1.5 rounded-full px-4 font-semibold text-forest-900 hover:bg-cream-200',
-                    active && 'bg-forest-50',
+                    'flex min-h-11 items-center gap-1.5 rounded-full px-4 font-semibold text-ink hover:bg-paper-200',
+                    active && 'bg-kin-50',
                   ]}
                   aria-expanded="false"
                   aria-controls={`nav-${group.id}`}
@@ -44,7 +46,7 @@ const showReserve = reservationView.showHeaderCta;
                 </button>
                 <div
                   id={`nav-${group.id}`}
-                  class="absolute top-full left-0 mt-2 hidden w-80 rounded-2xl bg-cream-50 p-2 shadow-xl ring-1 ring-cream-300"
+                  class="absolute top-full left-0 mt-2 hidden w-80 rounded-2xl bg-paper-50 p-2 shadow-xl ring-1 ring-paper-300"
                   data-disclosure-panel
                 >
                   <ul>
@@ -53,10 +55,10 @@ const showReserve = reservationView.showHeaderCta;
                         <a
                           href={link.href}
                           aria-current={isCurrent(path, link.href) ? 'page' : undefined}
-                          class="block rounded-xl px-4 py-3 text-forest-900 no-underline hover:bg-cream-200 aria-[current=page]:bg-forest-50"
+                          class="block rounded-xl px-4 py-3 text-ink no-underline hover:bg-paper-200 aria-[current=page]:bg-kin-50"
                         >
                           <span class="block font-semibold">{link.label}</span>
-                          {link.description && <span class="block text-sm text-bark-600">{link.description}</span>}
+                          {link.description && <span class="block text-sm text-smoke-600">{link.description}</span>}
                         </a>
                       </li>
                     ))}
@@ -70,7 +72,7 @@ const showReserve = reservationView.showHeaderCta;
           <a
             href={CONTACT_LINK.href}
             aria-current={isCurrent(path, CONTACT_LINK.href) ? 'page' : undefined}
-            class="flex min-h-11 items-center rounded-full px-4 font-semibold text-forest-900 no-underline hover:bg-cream-200 aria-[current=page]:bg-forest-50"
+            class="flex min-h-11 items-center rounded-full px-4 font-semibold text-ink no-underline hover:bg-paper-200 aria-[current=page]:bg-kin-50"
           >
             {CONTACT_LINK.label}
           </a>
@@ -88,7 +90,7 @@ const showReserve = reservationView.showHeaderCta;
       }
       <button
         type="button"
-        class="flex min-h-11 min-w-11 items-center gap-2 rounded-full border-2 border-forest-700 px-4 font-semibold text-forest-900 lg:hidden"
+        class="flex min-h-11 min-w-11 items-center gap-2 rounded-full border-2 border-kin-700 px-4 font-semibold text-kin-700 lg:hidden"
         aria-expanded="false"
         aria-controls="mobile-menu"
         data-mobile-toggle
@@ -103,7 +105,7 @@ const showReserve = reservationView.showHeaderCta;
   </div>
 
   <!-- Mobile navigation: always visible without JavaScript; collapsible with it. -->
-  <nav id="mobile-menu" aria-label="Main" class="max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain border-t border-cream-300 bg-cream-50 lg:hidden" data-mobile-menu>
+  <nav id="mobile-menu" aria-label="Main" class="max-h-[calc(100dvh-5rem)] overflow-y-auto overscroll-contain border-t border-paper-300 bg-paper-50 lg:hidden" data-mobile-menu>
     <div class="container-page grid gap-6 py-6 sm:grid-cols-2">
       {
         NAV_GROUPS.map((group) => (
@@ -115,7 +117,7 @@ const showReserve = reservationView.showHeaderCta;
                   <a
                     href={link.href}
                     aria-current={isCurrent(path, link.href) ? 'page' : undefined}
-                    class="flex min-h-12 items-center rounded-lg px-3 text-lg font-semibold text-forest-900 no-underline hover:bg-cream-200 aria-[current=page]:bg-forest-50"
+                    class="flex min-h-12 items-center rounded-lg px-3 text-lg font-semibold text-ink no-underline hover:bg-paper-200 aria-[current=page]:bg-kin-50"
                   >
                     {link.label}
                   </a>

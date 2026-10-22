@@ -3,37 +3,48 @@
 @import 'tailwindcss';
 
 /*
- * Design tokens. Colours were checked for WCAG 2.2 AA contrast
- * (see tests/contrast.test.ts): text colours >= 4.5:1 on cream/white,
- * button text >= 4.5:1 on its background.
+ * Design tokens, taken from the previous website's Wix theme and the
+ * Kin Canada logo: Kin red #ED2025, purple #4C2273, light grey #E3E3E3,
+ * white and black. Darker shades of red are used wherever text needs
+ * WCAG 2.2 AA contrast (see tests/contrast.test.ts):
+ * - kin-500 (exact brand red): logo, decorative rules, large headings (≥ 3:1)
+ * - kin-600: links and small red text (≥ 4.5:1 on white and grey bands)
+ * - kin-700: buttons and the footer, with white text (7:1)
  */
 @theme {
   --font-display: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
   --font-sans: 'Source Sans 3 Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
 
-  --color-cream-50: #fffcf6;
-  --color-cream-100: #fbf6ec;
-  --color-cream-200: #f4ead6;
-  --color-cream-300: #e8d9bb;
+  /* Backgrounds: white with light grey bands, as on the old site. */
+  --color-paper-50: #ffffff;
+  --color-paper-100: #f7f7f7;
+  --color-paper-200: #e3e3e3;
+  --color-paper-300: #c7c7c7;
 
-  --color-ink: #1d1813;
-  --color-bark-700: #4f3e2c;
-  --color-bark-600: #6a5640;
+  /* Text */
+  --color-ink: #111111;
+  --color-smoke-700: #4d4d4d;
+  --color-smoke-600: #5e5e5e;
 
-  --color-maple-50: #fdf3e2;
-  --color-maple-100: #f9e1b8;
-  --color-maple-300: #eeb359;
-  --color-maple-400: #e0952f;
-  --color-maple-600: #a6550f;
-  --color-maple-700: #8a440b;
-  --color-maple-800: #6c350a;
+  /* Kin red */
+  --color-kin-50: #fdeced;
+  --color-kin-100: #fbd3d4;
+  --color-kin-300: #f58a8d;
+  --color-kin-500: #ed2025;
+  --color-kin-600: #c8161c;
+  --color-kin-700: #b0141a;
+  --color-kin-800: #8a0f14;
 
-  --color-forest-50: #eef4ee;
-  --color-forest-100: #dbe8dc;
-  --color-forest-600: #2f6145;
-  --color-forest-700: #24503a;
-  --color-forest-800: #1d4030;
-  --color-forest-900: #163126;
+  /* Kin purple (secondary) */
+  --color-plum-50: #f3eef8;
+  --color-plum-100: #e4d9ef;
+  --color-plum-600: #6a3a99;
+  --color-plum-700: #5a2d84;
+  --color-plum-800: #4c2273;
+  --color-plum-900: #36184f;
+
+  /* "Open" status only */
+  --color-go: #2e7d32;
 
   --color-alert-50: #fdecea;
   --color-alert-700: #9b1c1c;
@@ -48,7 +59,7 @@
   }
 
   body {
-    @apply bg-cream-100 font-sans text-ink antialiased;
+    @apply bg-paper-100 font-sans text-ink antialiased;
     font-size: 1.125rem;
     line-height: 1.65;
     text-rendering: optimizeLegibility;
@@ -58,11 +69,17 @@
   h2,
   h3,
   h4 {
-    @apply font-display text-forest-900;
+    @apply font-display text-ink;
     font-optical-sizing: auto;
     line-height: 1.15;
     text-wrap: balance;
     letter-spacing: -0.01em;
+  }
+
+  /* Large headings in Kin red, like the old site (large text needs 3:1). */
+  h1,
+  h2 {
+    @apply text-kin-500;
   }
 
   p {
@@ -70,25 +87,25 @@
   }
 
   a {
-    @apply text-maple-700 underline decoration-1 underline-offset-[0.2em];
+    @apply text-kin-600 underline decoration-1 underline-offset-[0.2em];
   }
   a:hover {
-    @apply text-maple-800 decoration-2;
+    @apply text-kin-800 decoration-2;
   }
 
   /* One consistent, highly visible focus indicator (WCAG 2.4.7 / 2.4.13). */
   :focus-visible {
-    outline: 3px solid var(--color-maple-600);
+    outline: 3px solid var(--color-plum-700);
     outline-offset: 3px;
     border-radius: 4px;
   }
   .on-dark :focus-visible,
   .on-dark:focus-visible {
-    outline-color: var(--color-maple-300);
+    outline-color: #ffffff;
   }
 
   ::selection {
-    background: var(--color-maple-100);
+    background: var(--color-kin-100);
   }
 
   img {
@@ -114,7 +131,7 @@
   }
 
   .eyebrow {
-    @apply font-sans text-sm font-bold tracking-[0.14em] text-maple-700 uppercase;
+    @apply font-sans text-sm font-bold tracking-[0.14em] text-kin-600 uppercase;
   }
 
   .prose-site > * + * {
@@ -131,31 +148,22 @@
     @apply inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 text-center font-sans text-base font-bold no-underline transition-colors;
   }
   .btn-primary {
-    @apply bg-maple-700 text-white hover:bg-maple-800 hover:text-white;
+    @apply bg-kin-700 text-white hover:bg-kin-800 hover:text-white;
   }
   .btn-secondary {
-    @apply border-2 border-forest-700 bg-transparent text-forest-800 hover:bg-forest-700 hover:text-white;
+    @apply border-2 border-kin-700 bg-transparent text-kin-700 hover:bg-kin-700 hover:text-white;
   }
   .btn-light {
-    @apply bg-cream-50 text-forest-900 hover:bg-maple-100 hover:text-forest-900;
+    @apply bg-paper-50 text-ink hover:bg-kin-100 hover:text-ink;
   }
   .btn-outline-light {
-    @apply border-2 border-cream-50 text-cream-50 hover:bg-cream-50 hover:text-forest-900;
+    @apply border-2 border-paper-50 text-paper-50 hover:bg-paper-50 hover:text-ink;
   }
 
   .card {
-    @apply rounded-[var(--radius-card)] bg-cream-50 p-6 ring-1 ring-cream-300 sm:p-8;
+    @apply rounded-[var(--radius-card)] bg-paper-50 p-6 ring-1 ring-paper-300 sm:p-8;
   }
 
-  /* Subtle maple-leaf divider, purely decorative. */
-  .leaf-rule {
-    @apply flex items-center gap-3 text-maple-400;
-  }
-  .leaf-rule::before,
-  .leaf-rule::after {
-    content: '';
-    @apply h-px flex-1 bg-cream-300;
-  }
 }
 
 @layer utilities {
@@ -181,12 +189,12 @@ html:not(.js) [data-mobile-menu] {
 
 /* Season status dot follows data-phase, which the browser may update. */
 [data-season-status] .season-dot {
-  background: var(--color-maple-400);
+  background: var(--color-kin-500);
 }
 [data-phase='openToday'] .season-dot,
 [data-phase='inSeason'] .season-dot {
-  background: var(--color-forest-600);
+  background: var(--color-go);
 }
 [data-phase='ended'] .season-dot {
-  background: var(--color-bark-600);
+  background: var(--color-smoke-600);
 }

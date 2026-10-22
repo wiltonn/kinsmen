@@ -14,7 +14,7 @@ const Heading = headingLevel;
 <div>
   <Heading class="text-2xl font-semibold">{list.title}</Heading>
   <ReviewFlag item={list} class="mt-2" />
-  {list.intro && <p class="mt-2 text-bark-700">{list.intro}</p>}
+  {list.intro && <p class="mt-2 text-smoke-700">{list.intro}</p>}
   <table class="mt-4 w-full border-collapse text-left">
     <caption class="sr-only">{list.title}</caption>
     <thead class="sr-only">
@@ -23,10 +23,10 @@ const Heading = headingLevel;
     <tbody>
       {
         list.items.map((item) => (
-          <tr class="border-b border-cream-300 last:border-b-0">
+          <tr class="border-b border-paper-300 last:border-b-0">
             <th scope="row" class="py-3 pr-4 align-top font-normal">
               <span class="font-semibold">{item.label}</span>
-              {item.description && <span class="block text-sm text-bark-600">{item.description}</span>}
+              {item.description && <span class="block text-sm text-smoke-600">{item.description}</span>}
             </th>
             <td class="py-3 text-right align-top font-semibold whitespace-nowrap tabular-nums">{formatPrice(item.price)}</td>
           </tr>
@@ -34,5 +34,5 @@ const Heading = headingLevel;
       }
     </tbody>
   </table>
-  {list.footnote && <p class="mt-3 text-base text-bark-700">{list.footnote}</p>}
+  {list.footnote && <p class="mt-3 text-base text-smoke-700">{list.footnote}</p>}
 </div>

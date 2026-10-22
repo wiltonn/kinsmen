@@ -9,25 +9,23 @@ const c = settings.contact;
 const year = new Date().getFullYear();
 ---
 
-<footer class="mt-20 bg-forest-900 text-cream-100 on-dark">
+<footer class="mt-20 bg-kin-700 text-white on-dark">
   <div class="container-page grid gap-10 py-14 md:grid-cols-[1.3fr_1fr_1fr]">
     <div>
-      <p class="flex items-center gap-3 font-display text-2xl font-semibold text-white">
-        <Logo class="h-12 w-12" />
-        {settings.siteName}
-      </p>
+      <Logo tone="white" height={64} alt={settings.organizationName} class="h-16 w-auto" />
+      <p class="mt-5 font-display text-2xl font-semibold text-white">{settings.siteName}</p>
       <address class="mt-5 not-italic">
         {c.addressLines.map((line) => <span class="block">{line}</span>)}
         <span class="block">{c.locality}, {c.region} {c.postalCode}</span>
       </address>
       <p class="mt-4 flex flex-col gap-1">
-        <a href={c.phoneHref} class="font-semibold text-white hover:text-maple-100">{c.phone}</a>
-        <a href={`mailto:${c.email}`} class="break-all text-white hover:text-maple-100">{c.email}</a>
+        <a href={c.phoneHref} class="font-semibold text-white hover:text-kin-100">{c.phone}</a>
+        <a href={`mailto:${c.email}`} class="break-all text-white hover:text-kin-100">{c.email}</a>
       </p>
       {
         settings.facebookUrl && (
           <p class="mt-4">
-            <a href={settings.facebookUrl} class="text-white hover:text-maple-100" rel="noopener">
+            <a href={settings.facebookUrl} class="text-white hover:text-kin-100" rel="noopener">
               Follow us on Facebook
             </a>
           </p>
@@ -37,20 +35,20 @@ const year = new Date().getFullYear();
     {
       NAV_GROUPS.map((group) => (
         <nav aria-labelledby={`footer-${group.id}`}>
-          <h2 id={`footer-${group.id}`} class="font-sans text-sm font-bold tracking-[0.14em] !text-maple-100 uppercase">
+          <h2 id={`footer-${group.id}`} class="font-sans text-sm font-bold tracking-[0.14em] !text-kin-100 uppercase">
             {group.label}
           </h2>
           <ul class="mt-4 space-y-1">
             {group.links.map((link) => (
               <li>
-                <a href={link.href} class="inline-flex min-h-10 items-center text-white no-underline hover:text-maple-100 hover:underline">
+                <a href={link.href} class="inline-flex min-h-10 items-center text-white no-underline hover:text-kin-100 hover:underline">
                   {link.label}
                 </a>
               </li>
             ))}
             {group.id === 'kinsmen' && (
               <li>
-                <a href="/contact" class="inline-flex min-h-10 items-center text-white no-underline hover:text-maple-100 hover:underline">
+                <a href="/contact" class="inline-flex min-h-10 items-center text-white no-underline hover:text-kin-100 hover:underline">
                   Contact
                 </a>
               </li>
@@ -60,13 +58,13 @@ const year = new Date().getFullYear();
       ))
     }
   </div>
-  <div class="border-t border-forest-700">
+  <div class="border-t border-kin-800">
     <div class="container-page flex flex-col gap-2 py-6 text-base sm:flex-row sm:items-center sm:justify-between">
       <p>
         © {year} {settings.organizationName}. The Sugar Bush is run by volunteers, and every visit supports our community.
       </p>
       {settings.landAcknowledgement && (
-        <a href="/kinsmen#land-acknowledgement" class="text-white hover:text-maple-100">Land acknowledgement</a>
+        <a href="/kinsmen#land-acknowledgement" class="text-white hover:text-kin-100">Land acknowledgement</a>
       )}
     </div>
   </div>

@@ -83,7 +83,7 @@ const faqs = [...(season?.faqs ?? []), ...content.generalFaqs].filter((f) => f.t
     <section aria-labelledby="pancake-dates" class="grid gap-8 lg:grid-cols-2">
       <div>
         <SectionHeading title="Dates and serving hours" id="pancake-dates" />
-        <p class="mt-4 text-lg text-bark-700">
+        <p class="mt-4 text-lg text-smoke-700">
           {
             season?.pancakeHouse.servingHours
               ? `Serving ${formatHours(season.pancakeHouse.servingHours)}.`
@@ -91,10 +91,10 @@ const faqs = [...(season?.faqs ?? []), ...content.generalFaqs].filter((f) => f.t
           }
           {season?.pancakeHouse.servingHours?.note && ` ${season.pancakeHouse.servingHours.note}`}
         </p>
-        {season?.pancakeHouse.note && <p class="mt-3 text-bark-700">{season.pancakeHouse.note}</p>}
+        {season?.pancakeHouse.note && <p class="mt-3 text-smoke-700">{season.pancakeHouse.note}</p>}
         {
           season?.pancakeHouse.dateMode === 'sameAsOperating' && (
-            <p class="mt-3 text-bark-700">The Pancake House is open on every <a href="/visit#dates">public day</a>.</p>
+            <p class="mt-3 text-smoke-700">The Pancake House is open on every <a href="/visit#dates">public day</a>.</p>
           )
         }
       </div>
@@ -118,10 +118,10 @@ const faqs = [...(season?.faqs ?? []), ...content.generalFaqs].filter((f) => f.t
         season?.menu ? (
           <div class="mt-4"><MenuSection menu={season.menu} /></div>
         ) : (
-          <p class="mt-4 text-lg text-bark-700">This season’s menu will be posted soon.</p>
+          <p class="mt-4 text-lg text-smoke-700">This season’s menu will be posted soon.</p>
         )
       }
-      <p class="mt-6 text-bark-700">
+      <p class="mt-6 text-smoke-700">
         Taking some syrup home? See <a href="/maple-products">maple products and prices</a>.
       </p>
     </section>

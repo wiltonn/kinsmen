@@ -102,7 +102,19 @@ All photos come from the old site. ☐ Confirm permission and photographer credi
 Please supply one.
 Not migrated: chainsaw-carving photos (2014), the “Portraits of Honour” photo (context unclear), and partner logos.
 
-## 10. Wix template leftovers (not migrated)
+## 10. Brand: logo and colours
+
+The colour scheme and logo come from the old site: Kin red `#ED2025`, purple `#4C2273`, light grey `#E3E3E3`,
+white and black, plus the red “Kin Canada · Kinsmen Club of Greater London” logo from the old header.
+Darker reds are used for small text and buttons so they meet contrast requirements.
+
+| | Item |
+| --- | --- |
+| ☐ | The Kin Canada emblem is a registered trademark. Confirm the club's use follows Kin Canada's current brand standards. |
+| ☐ | The logo was converted from a small PNG (about 360 × 130 px). Ask Kin Canada or the club for the official **vector (SVG/EPS) artwork** and replace the files in `src/assets/brand/` for sharper rendering. |
+| ☐ | Favicon and home-screen icon use the Kin emblem (`public/favicon-*.png`, `public/apple-touch-icon.png`). Replace if Kin Canada supplies an official icon. |
+
+## 11. Wix template leftovers (not migrated)
 
 `/about-1` was an unedited Wix template (“Finding Inspiration in Every Turn”, placeholder team members). It now
 redirects to `/kinsmen`.

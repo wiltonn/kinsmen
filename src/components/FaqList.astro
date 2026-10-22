@@ -14,17 +14,17 @@ const visible = faqs.filter((f) => showDevNotes || f.provenance !== 'sample');
 const Heading = headingLevel;
 ---
 
-<div class="divide-y divide-cream-300 rounded-2xl bg-cream-50 ring-1 ring-cream-300">
+<div class="divide-y divide-paper-300 rounded-2xl bg-paper-50 ring-1 ring-paper-300">
   {
     visible.map((faq) => (
       <details class="group px-5 sm:px-6">
         <summary class="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-4 [&::-webkit-details-marker]:hidden">
-          <Heading class="font-sans text-lg font-semibold text-forest-900">{faq.question}</Heading>
-          <svg aria-hidden="true" viewBox="0 0 20 20" class="h-5 w-5 shrink-0 text-maple-700 transition-transform group-open:rotate-45">
+          <Heading class="font-sans text-lg font-semibold text-ink">{faq.question}</Heading>
+          <svg aria-hidden="true" viewBox="0 0 20 20" class="h-5 w-5 shrink-0 text-kin-600 transition-transform group-open:rotate-45">
             <path fill="currentColor" d="M9 4h2v5h5v2h-5v5H9v-5H4V9h5z" />
           </svg>
         </summary>
-        <div class="prose-site pb-5 text-bark-700">
+        <div class="prose-site pb-5 text-smoke-700">
           <ReviewFlag item={faq} />
           {faq.answer.map((p) => <p>{p}</p>)}
         </div>

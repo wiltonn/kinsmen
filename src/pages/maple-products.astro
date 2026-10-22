@@ -38,7 +38,7 @@ const faqs = [...(season?.faqs ?? []), ...content.generalFaqs].filter((f) => f.t
                 {group.items.map((product) => (
                   <li class="card">
                     <h3 class="text-2xl font-semibold">{product.name}</h3>
-                    {product.description && <p class="mt-1 text-bark-700">{product.description}</p>}
+                    {product.description && <p class="mt-1 text-smoke-700">{product.description}</p>}
                     <table class="mt-3 w-full text-left">
                       <caption class="sr-only">{product.name} sizes and prices</caption>
                       <thead class="sr-only">
@@ -46,7 +46,7 @@ const faqs = [...(season?.faqs ?? []), ...content.generalFaqs].filter((f) => f.t
                       </thead>
                       <tbody>
                         {product.variants.map((v) => (
-                          <tr class="border-b border-dashed border-cream-300 last:border-0">
+                          <tr class="border-b border-dashed border-paper-300 last:border-0">
                             <th scope="row" class="py-2 font-normal">{v.label}</th>
                             <td class="py-2 text-right font-semibold tabular-nums">{formatPrice(v.price)}</td>
                           </tr>
@@ -72,8 +72,8 @@ const faqs = [...(season?.faqs ?? []), ...content.generalFaqs].filter((f) => f.t
                   <h3 class="font-sans text-xl font-bold">
                     {place.url ? <a href={place.url} rel="noopener">{place.name}</a> : place.name}
                   </h3>
-                  <p class="text-bark-700">{place.when}</p>
-                  {place.address && <p class="text-bark-700">{place.address}</p>}
+                  <p class="text-smoke-700">{place.when}</p>
+                  {place.address && <p class="text-smoke-700">{place.address}</p>}
                   <ReviewFlag item={place} class="mt-2" />
                 </li>
               ))

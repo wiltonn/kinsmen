@@ -9,7 +9,8 @@ Kinsmen Club of Greater London. One site with two areas:
 | Concern | Choice |
 | --- | --- |
 | Framework | [Astro 7](https://docs.astro.build/) + TypeScript, static output (`output: 'static'`) |
-| Styling | Tailwind CSS 4 (`@tailwindcss/vite`), tokens in `src/styles/global.css` |
+| Styling | Tailwind CSS 4 (`@tailwindcss/vite`), tokens in `src/styles/global.css`, using the old site's Kin red / purple / grey scheme |
+| Brand | Kin Canada logo from the old site in `src/assets/brand/` (`Logo.astro`); favicons in `public/` |
 | Content | [Sanity](https://www.sanity.io/) (Studio in `studio/`), with a local fixture mode |
 | Reservations | OpenTable official booking link and optional official widget |
 | Hosting | Cloudflare Pages (primary); `vercel.json` included so Vercel works too |

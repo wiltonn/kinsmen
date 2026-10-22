@@ -48,8 +48,16 @@ short link · Facebook `KinsmenFanshaweSugarBush` (plus a leftover `facebook.com
 
 Club photos reused (credits/permission to confirm): visitors at the sugar shack (`_KSB0006.jpg`), syrup shelf,
 visitors with draft horses (2015), maple history display boards, Santa Claus Parade float, Stevenson Camp cake.
-Not reused: Best of London badge and Denny's logo (third-party marks), partner logos, 2014 chainsaw carving photos,
+Reused: the Kin Canada header logo (see Brand). Not reused: Best of London badge and Denny's logo (third-party marks), partner logos, 2014 chainsaw carving photos,
 Portraits of Honour, map screenshot (replaced by a Google Maps link), land acknowledgement image (transcribed to text).
+
+## Brand
+
+Wix theme colours in use: Kin red `#ED2025` (headings, links, buttons, footer), purple `#4C2273` (Benefactors
+cards), light grey `#E3E3E3` (section bands), white and black. The theme also defined brown `#634624` and tan
+`#E8CEB0`, but they weren't visible on the page. The header logo is a red Kin Canada / Kinsmen Club of Greater
+London lockup (`17f70a_ed684750212d4835ab289ea1860e312e~mv2.png`, 500 × 500 PNG on white). There was no custom
+favicon (Wix default). The fonts were Arial/Helvetica and Futura (the new site keeps its own fonts).
 
 ## Accessibility of the old site (for reference)
 

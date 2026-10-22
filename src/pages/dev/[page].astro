@@ -34,7 +34,7 @@ const areas = [...new Set(items.map((i) => i.area))];
         <div><dt class="font-semibold">Reservation state</dt><dd>{state.reservationView.state} (can book: {String(state.reservationView.canBook)})</dd></div>
         <div><dt class="font-semibold">OpenTable configured</dt><dd>{String(state.booking.configured)} {state.booking.widget ? '(widget + link)' : ''}</dd></div>
       </dl>
-      <p class="mt-4 text-base text-bark-700">
+      <p class="mt-4 text-base text-smoke-700">
         Preview other states locally with <code>FIXTURE_SCENARIO</code> ({SCENARIOS.join(', ')}) and <code>SITE_NOW</code>. See README.
       </p>
     </section>
@@ -42,16 +42,16 @@ const areas = [...new Set(items.map((i) => i.area))];
       areas.map((area) => (
         <section aria-labelledby={`area-${area}`}>
           <h2 id={`area-${area}`} class="text-2xl font-semibold">{area}</h2>
-          <ul class="mt-3 divide-y divide-cream-300 rounded-2xl bg-cream-50 ring-1 ring-cream-300">
+          <ul class="mt-3 divide-y divide-paper-300 rounded-2xl bg-paper-50 ring-1 ring-paper-300">
             {items.filter((i) => i.area === area).map((i) => (
               <li class="px-5 py-3">
                 <p class="font-semibold">
                   {i.label}{' '}
-                  <span class:list={['ml-1 rounded px-2 py-0.5 text-xs', i.provenance === 'sample' ? 'bg-alert-50 text-alert-700' : 'bg-maple-50 text-maple-800']}>
+                  <span class:list={['ml-1 rounded px-2 py-0.5 text-xs', i.provenance === 'sample' ? 'bg-alert-50 text-alert-700' : 'bg-kin-50 text-kin-800']}>
                     {i.provenance === 'sample' ? 'Sample' : 'Needs review'}
                   </span>
                 </p>
-                {i.note && <p class="text-base text-bark-700">{i.note}</p>}
+                {i.note && <p class="text-base text-smoke-700">{i.note}</p>}
               </li>
             ))}
           </ul>

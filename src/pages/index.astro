@@ -55,7 +55,7 @@ const placeLd =
   {placeLd && <JsonLd slot="head" data={placeLd} />}
 
   <!-- 1. Introduction -->
-  <section class="relative isolate overflow-hidden bg-forest-900 on-dark" aria-labelledby="hero-title">
+  <section class="relative isolate overflow-hidden bg-ink on-dark" aria-labelledby="hero-title">
     <Photo
       image={images.hero}
       sizes="100vw"
@@ -64,13 +64,13 @@ const placeLd =
       class="-z-10 opacity-55"
       placeholderLabel="hero"
     />
-    <div class="absolute inset-0 -z-10 bg-gradient-to-r from-forest-900 via-forest-900/80 to-forest-900/20" aria-hidden="true"></div>
+    <div class="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/75 to-ink/10" aria-hidden="true"></div>
     <div class="container-page py-20 sm:py-28 lg:py-32">
-      <p class="eyebrow !text-maple-100">Thorndale · Thames Centre · near London, Ontario</p>
+      <p class="eyebrow !text-kin-100">Thorndale · Thames Centre · near London, Ontario</p>
       <h1 id="hero-title" class="mt-3 max-w-3xl text-4xl font-semibold !text-white sm:text-6xl">
         Maple season in the woods by Fanshawe Lake
       </h1>
-      <p class="mt-6 max-w-2xl text-xl text-cream-100">
+      <p class="mt-6 max-w-2xl text-xl text-paper-100">
         Walk our sugar bush, see how sap becomes syrup, and sit down to pancakes with pure maple syrup. Run by
         volunteers of the {settings.organizationName}.
       </p>
@@ -90,7 +90,7 @@ const placeLd =
   <!-- 2. Season status and essentials -->
   <section aria-labelledby="essentials-title" class="container-page -mt-10 relative">
     <h2 id="essentials-title" class="sr-only">Season status and visitor essentials</h2>
-    <div class="rounded-[var(--radius-card)] bg-cream-50 p-6 shadow-xl ring-1 ring-cream-300 sm:p-8">
+    <div class="rounded-[var(--radius-card)] bg-paper-50 p-6 shadow-xl ring-1 ring-paper-300 sm:p-8">
       <SeasonStatus />
       <div class="mt-6">
         <KeyFacts />
@@ -103,19 +103,19 @@ const placeLd =
     <Photo image={images.pancakeHouse} sizes="(min-width: 1024px) 560px, 100vw" class="rounded-[var(--radius-card)]" placeholderLabel="Pancake House" />
     <div>
       <SectionHeading eyebrow="Pancake House" title="Pancakes with pure maple syrup" id="pancake-title" />
-      <p class="mt-4 text-lg text-bark-700">
+      <p class="mt-4 text-lg text-smoke-700">
         Our Pancake House serves pancakes, sausages and hot drinks during the season.
         {season?.menu && <> See the <a href="/pancake-house#menu">menu and prices</a>.</>}
       </p>
-      <div class="mt-6 rounded-2xl bg-maple-50 p-5 ring-1 ring-maple-100">
-        <p class="font-semibold text-forest-900">{reservationView.headline}</p>
-        <p class="mt-1 text-bark-700">{reservationView.message}</p>
+      <div class="mt-6 rounded-2xl bg-kin-50 p-5 ring-1 ring-kin-100">
+        <p class="font-semibold text-ink">{reservationView.headline}</p>
+        <p class="mt-1 text-smoke-700">{reservationView.message}</p>
         {
           season?.reservations.tourRelationship !== 'unconfirmed' && season?.reservations.tourRelationshipNote && (
-            <p class="mt-3 text-base text-bark-700">{season.reservations.tourRelationshipNote}</p>
+            <p class="mt-3 text-base text-smoke-700">{season.reservations.tourRelationshipNote}</p>
           )
         }
-        {!pancakeDates && <p class="mt-3 text-base text-bark-700">Pancake House dates and serving hours will be posted once confirmed.</p>}
+        {!pancakeDates && <p class="mt-3 text-base text-smoke-700">Pancake House dates and serving hours will be posted once confirmed.</p>}
       </div>
       <p class="mt-6 flex flex-wrap gap-3">
         {reservationView.canBook && <a href="/pancake-house#reserve" class="btn btn-primary">Reserve a table</a>}
@@ -125,7 +125,7 @@ const placeLd =
   </section>
 
   <!-- 4. Sugar Bush experience -->
-  <section aria-labelledby="experience-title" class="mt-20 bg-cream-200/70 py-20">
+  <section aria-labelledby="experience-title" class="mt-20 bg-paper-200/70 py-20">
     <div class="container-page grid gap-10 lg:grid-cols-[1fr_1.1fr] lg:items-start">
       <div>
         <SectionHeading
@@ -141,8 +141,8 @@ const placeLd =
           experiences.map((item) => (
             <li class="card">
               <h3 class="text-2xl font-semibold">{item.title}</h3>
-              <p class="mt-2 text-bark-700">{item.body}</p>
-              {item.bookingNote && <p class="mt-2 font-semibold text-forest-700">{item.bookingNote}</p>}
+              <p class="mt-2 text-smoke-700">{item.body}</p>
+              {item.bookingNote && <p class="mt-2 font-semibold text-plum-700">{item.bookingNote}</p>}
               <ReviewFlag item={item} class="mt-3" />
             </li>
           ))
@@ -179,10 +179,10 @@ const placeLd =
   </section>
 
   <!-- 6. Community -->
-  <section aria-labelledby="community-title" class="mt-20 bg-forest-900 py-20 text-cream-100 on-dark">
+  <section aria-labelledby="community-title" class="mt-20 bg-plum-800 py-20 text-paper-100 on-dark">
     <div class="container-page grid gap-10 lg:grid-cols-[1.2fr_1fr] lg:items-center">
       <div>
-        <p class="eyebrow !text-maple-100">About the Kinsmen</p>
+        <p class="eyebrow !text-kin-100">About the Kinsmen</p>
         <h2 id="community-title" class="mt-2 text-3xl font-semibold !text-white sm:text-4xl">Your visit supports our community</h2>
         <p class="mt-4 text-lg">
           The Sugar Bush is the main fundraising project of the {settings.organizationName}. Volunteers run it every
@@ -194,7 +194,7 @@ const placeLd =
               <p class="mt-6 font-semibold text-white">Organizations we have supported include:</p>
               <ul class="mt-3 flex flex-wrap gap-2">
                 {organizations.slice(0, 6).map((o) => (
-                  <li class="rounded-full bg-forest-800 px-3 py-1 text-base ring-1 ring-forest-700">{o.name}</li>
+                  <li class="rounded-full bg-plum-900 px-3 py-1 text-base ring-1 ring-plum-700">{o.name}</li>
                 ))}
               </ul>
             </>
@@ -218,7 +218,7 @@ const placeLd =
         {contact.addressLines.map((l) => <span class="block">{l}</span>)}
         <span class="block">{contact.locality}, {contact.region} {contact.postalCode}</span>
       </address>
-      {contact.directions?.map((p) => <p class="mt-3 text-bark-700">{p}</p>)}
+      {contact.directions?.map((p) => <p class="mt-3 text-smoke-700">{p}</p>)}
       <ReviewFlag item={contact} class="mt-3" />
       <p class="mt-6 flex flex-wrap gap-3">
         {contact.mapUrl && <a href={contact.mapUrl} class="btn btn-secondary" rel="noopener">Open in Google Maps</a>}

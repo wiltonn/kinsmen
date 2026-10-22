@@ -35,7 +35,7 @@ const faqs = [...(season?.faqs ?? []), ...content.generalFaqs].filter((f) => f.t
       <div>
         <SectionHeading title={`${season?.year ?? ''} school tour dates`.trim()} id="school-dates" />
         {school?.hours && <p class="mt-4 text-lg">Tours run {formatHours(school.hours)}.</p>}
-        {school?.howToBook && <p class="mt-4 text-lg text-bark-700">{school.howToBook}</p>}
+        {school?.howToBook && <p class="mt-4 text-lg text-smoke-700">{school.howToBook}</p>}
         <div class="mt-6">
           <EnquiryCard route={settings.enquiries.schoolTours} variant="primary" />
         </div>
@@ -77,7 +77,7 @@ const faqs = [...(season?.faqs ?? []), ...content.generalFaqs].filter((f) => f.t
 
     <section aria-labelledby="other-groups" class="card max-w-3xl">
       <h2 id="other-groups" class="text-3xl font-semibold">Other groups</h2>
-      <p class="mt-3 text-lg text-bark-700">
+      <p class="mt-3 text-lg text-smoke-700">
         Planning a visit with a club, camp or community group? Contact us to talk about dates and what’s available.
       </p>
       <p class="mt-4 flex flex-wrap gap-3">
