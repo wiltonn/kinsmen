@@ -11,10 +11,13 @@
     "dev": "sanity dev",
     "build": "sanity build",
     "deploy": "sanity deploy",
-    "validate": "sanity schema validate"
+    "validate": "sanity schema validate",
+    "admin:demo": "vite --config admin-demo/vite.config.ts",
+    "typecheck": "tsc --noEmit -p ."
   },
   "dependencies": {
     "@sanity/icons": "^5.2.3",
+    "@sanity/ui": "^4.4.10",
     "@sanity/vision": "^6.20.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
@@ -23,6 +26,8 @@
   },
   "devDependencies": {
     "@types/react": "^19.3.0",
-    "typescript": "~6.0.3"
+    "@vitejs/plugin-react": "6.1.2",
+    "typescript": "~6.0.3",
+    "vite": "8.3.5"
   }
 }

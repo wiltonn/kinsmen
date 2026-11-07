@@ -161,7 +161,8 @@ The site is static, so publishing in Sanity has to trigger a rebuild:
 2. sanity.io/manage → your project → API → **Webhooks** → Create:
    - URL: the deploy hook URL
    - Dataset: `production`; trigger on create, update and delete
-   - Filter: `!(_id in path("drafts.**"))` (published changes only)
+   - Filter: `!(_id in path("drafts.**")) && !(_id in path("admin-tracker.**"))` (published content only; private
+     Website Admin tracker items never trigger a rebuild)
    - HTTP method: POST
 3. Publish a test change and watch the Pages deployment start (it usually takes 1–3 minutes).
 
@@ -179,3 +180,5 @@ deploy hook every morning if the repository secret `DEPLOY_HOOK_URL` is set.
 - [Redirect mapping](docs/redirects.md)
 - [OpenTable setup](docs/opentable-setup.md)
 - [Launch checklist](docs/launch-checklist.md)
+- [Spike: Website Admin tracker](docs/spikes/admin-tracker.md) (`npm run admin:demo` → http://127.0.0.1:3334)
+- [Spike: Club workspace](docs/spikes/club-workspace.md) (`npm run workspace:demo` → http://127.0.0.1:4322)

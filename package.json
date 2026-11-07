@@ -9,11 +9,13 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/check-links.mjs",
+    "build": "astro build && node scripts/check-links.mjs && node scripts/check-private-data.mjs",
     "preview": "astro preview",
-    "check": "astro check",
+    "check": "astro check && tsc -p workspace",
     "test": "vitest run",
-    "verify": "npm run check && npm run test && npm run build"
+    "verify": "npm run check && npm run test && npm run build",
+    "admin:demo": "npm run admin:demo --prefix studio",
+    "workspace:demo": "node --disable-warning=ExperimentalWarning workspace/dev-server.ts"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
