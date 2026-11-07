@@ -99,6 +99,21 @@ A mutation check confirmed the tests have teeth. Making `requireRead` allow ever
 
 **Not exercised with real services:** Cloudflare Access sign-in, code email delivery, Access session length and logout, and D1. The D1 adapter uses the same SQL as the demo. A D1-shaped wrapper over SQLite was used in one test, but real D1 was not.
 
+## Design review (2026-11-07)
+
+A designer-agent review of both admin areas, at phone and desktop widths in light and dark mode, made 14 recommendations. All were applied:
+
+- **Spacing:** fixed a CSS bug that removed the space below the header. Tidied grid and row spacing.
+- **Destructive actions:** now look different (tinted red with ✕) and go through a confirmation page that works without JavaScript. This covers remove access, make admin, cancel invitation, and removing a directory entry, committee or link.
+- **Form fields:** borders meet 3:1 contrast. Radios are larger and use the brand colour. Errors are marked on the field (`aria-invalid` plus a message under it) as well as in the banner.
+- **Phone header:** more compact, with "Sign out" on the same row. Tabs have visible outlines.
+- **Last admin:** shows an explanation instead of greyed-out buttons.
+- **One name throughout:** "Manage club" is used for the tab, the heading and the home box. The Manage page has sections for people and access, invitations, the to-do list and club details, with links to each.
+- **Invitation ready:** the page now comes from a redirect, so refreshing it doesn't invite twice. It has a "Copy link" button when JavaScript is available.
+- **To-do status:** saved with an explicit Save button instead of saving as soon as the selection changes.
+- **Save messages:** name the workspace and return you to the section you edited.
+- **Tracker:** has a root theme card, so dark mode and badges render outside Studio. The count cards have borders. Blocked items use one consistent colour, and long links wrap.
+
 ## Remaining setup for real shared access
 
 1. Create a Cloudflare Worker from `workspace/worker.ts`, plus a D1 database bound as `DB`. Apply `SCHEMA` from `workspace/src/db.ts`. Use its own hostname, separate from the public site.

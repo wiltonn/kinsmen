@@ -107,7 +107,7 @@ export function TrackerApp(props: TrackerAppProps) {
       <Stack gap={5}>
         <Grid gridTemplateColumns={[2, 2, 5]} gap={3} as="section" aria-label="Summary">
           {COLUMNS.map((c) => (
-            <SummaryCard key={c} label={COLUMN_LABELS[c]} count={summary.counts[c]} selected={tab === c} onClick={() => setTab(c)} />
+            <SummaryCard key={c} label={COLUMN_LABELS[c]} count={summary.counts[c]} />
           ))}
           <SummaryCard label="Blocked" count={summary.blocked.length} tone={summary.blocked.length ? 'critical' : 'default'} />
         </Grid>
@@ -228,7 +228,7 @@ export function TrackerApp(props: TrackerAppProps) {
 
 function Shell(props: TrackerAppProps & { children: ReactNode }) {
   return (
-    <Box padding={[3, 4, 5]} style={{ height: '100%', overflow: 'auto' }}>
+    <Card tone="default" height="fill" padding={[3, 4, 5]} style={{ minHeight: '100%', overflow: 'auto' }}>
       <Container width={3}>
         <Stack gap={5}>
           <Flex align="flex-start" justify="space-between" gap={3} wrap="wrap">
@@ -254,23 +254,13 @@ function Shell(props: TrackerAppProps & { children: ReactNode }) {
           {props.children}
         </Stack>
       </Container>
-    </Box>
+    </Card>
   );
 }
 
-function SummaryCard(p: { label: string; count: number; selected?: boolean; tone?: 'default' | 'critical'; onClick?: () => void }) {
+function SummaryCard(p: { label: string; count: number; tone?: 'default' | 'critical' }) {
   return (
-    <Card
-      padding={3}
-      radius={2}
-      border
-      tone={p.tone ?? 'default'}
-      as={p.onClick ? 'button' : 'div'}
-      onClick={p.onClick}
-      selected={p.selected}
-      style={p.onClick ? { cursor: 'pointer', textAlign: 'left' } : undefined}
-      aria-label={`${p.label}: ${p.count}`}
-    >
+    <Card padding={3} radius={2} border tone={p.tone ?? 'default'} aria-label={`${p.label}: ${p.count}`} role="group">
       <Stack gap={2}>
         <Text size={1} muted>
           {p.label}
@@ -295,7 +285,7 @@ function ItemCard(p: {
   const { item } = p;
   const blocked = isBlocked(item);
   return (
-    <Card padding={4} radius={2} border tone={blocked ? 'caution' : 'default'} as="article" aria-label={item.title}>
+    <Card padding={4} radius={2} border tone={blocked ? 'critical' : 'default'} as="article" aria-label={item.title}>
       <Stack gap={4}>
         <Flex justify="space-between" align="flex-start" gap={3} wrap="wrap">
           <Stack gap={2} flex={1} style={{ minWidth: 220 }}>
@@ -339,7 +329,7 @@ function ItemCard(p: {
           {item.targetDate && <Meta label="Target">{item.targetDate}</Meta>}
           {item.sourceUrl && (
             <Meta label="Source">
-              <a href={item.sourceUrl} target="_blank" rel="noreferrer">
+              <a href={item.sourceUrl} target="_blank" rel="noreferrer" style={{ overflowWrap: 'anywhere' }}>
                 {item.sourceUrl.replace(/^https?:\/\/(www\.)?/, '')}
               </a>
             </Meta>

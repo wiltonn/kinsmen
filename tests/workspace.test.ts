@@ -314,6 +314,69 @@ describe('5. recovery, revocation and handover', () => {
   });
 });
 
+describe('design review changes', () => {
+  it('destructive and power-granting actions go through a confirmation page that changes nothing', async () => {
+    const page = await http('/w/club-maple/access/g-mary/remove', { as: 'alex@example.org' });
+    expect(page.status).toBe(200);
+    expect(page.text).toContain('Remove <strong>Mary Member</strong>’s access to <strong>Maple Ridge Kin Club (demo)</strong>?');
+    expect(page.text).toContain('Yes, remove access');
+    expect((await service.signIn('mary@example.org')).kind).toBe('ok');
+    expect((await http('/w/club-maple/access/g-mary/make-admin', { as: 'alex@example.org' })).text).toContain('Yes, make admin');
+    for (const path of ['/w/club-maple/invitations/i-pat/cancel', '/w/club-maple/links/l-cal/remove', '/w/club-maple/committees/c-fund/remove', '/w/club-maple/members/d-taylor/remove']) {
+      const res = await http(path, { as: 'alex@example.org' });
+      expect(res.status, path).toBe(200);
+      expect(res.text, path).toMatch(/Yes, (cancel|remove)/);
+    }
+    expect((await service.links(await as('alex@example.org'), 'club-maple')).map((l) => l.id)).toContain('l-cal');
+  });
+
+  it('confirmation pages enforce the same access rules', async () => {
+    for (const path of ['/w/club-maple/access/g-alex/remove', '/w/club-maple/links/l-cal/remove', '/w/club-maple/members/d-taylor/remove', '/w/club-maple/invitations/i-pat/cancel']) {
+      expect((await http(path, { as: 'mary@example.org' })).status, path).toBe(404);
+    }
+    for (const path of ['/w/club-cedar/access/g-blair/remove', '/w/club-maple/access/g-blair/remove', '/w/club-maple/links/l-cedar/remove', '/w/club-maple/members/d-cedar-private/remove', '/w/club-maple/committees/c-cedar/remove']) {
+      const res = await http(path, { as: 'alex@example.org' });
+      expect(res.status, path).toBe(404);
+      expect(res.text).not.toMatch(/Blair Cedar|Cedar Falls shared drive|Morgan Cedar-Private|Cedar hall/);
+    }
+  });
+
+  it('the invitation page is a redirect target, so refreshing it does not invite again', async () => {
+    const res = await http('/w/club-maple/invite', { as: 'alex@example.org', form: { email: 'sam@example.org', name: 'Sam' } });
+    expect(res.status).toBe(303);
+    expect(res.location).toMatch(/^\/w\/club-maple\/invite\/[a-z0-9]+$/);
+    for (let i = 0; i < 2; i++) {
+      const ready = await http(res.location!, { as: 'alex@example.org' });
+      expect(ready.text).toContain('Invitation ready');
+      expect(ready.text).toContain('No email has been sent yet.');
+    }
+    expect((await store.invitationsForOrg('club-maple')).filter((i) => i.email === 'sam@example.org')).toHaveLength(1);
+    expect((await http(res.location!, { as: 'mary@example.org' })).status).toBe(404);
+  });
+
+  it('marks the field that has the problem', async () => {
+    const res = await http('/w/club-maple/invite', { as: 'alex@example.org', form: { email: 'not-an-email' } });
+    expect(res.status).toBe(422);
+    expect(res.text).toMatch(/id="iemail"[^>]*aria-invalid="true" aria-describedby="err-email"/);
+    expect(res.text).toContain('<p class="field-error" id="err-email">');
+    const link = await http('/w/club-maple/links', { as: 'alex@example.org', form: { title: 'Bad', url: 'ftp://x' } });
+    expect(link.text).toMatch(/id="lurl"[^>]*aria-invalid="true"/);
+  });
+
+  it('the last admin sees an explanation instead of disabled buttons', async () => {
+    const manage = await http('/w/club-maple/manage', { as: 'alex@example.org' });
+    expect(manage.text).toContain('You’re the only admin. To step down, first make someone else an admin.');
+    expect(manage.text).not.toContain('/access/g-alex/remove');
+    expect(manage.text).not.toMatch(/<button[^>]*disabled/);
+    expect(manage.text).toContain('<h1>Manage club</h1>');
+  });
+
+  it('success messages name the workspace', async () => {
+    const res = await http('/w/club-maple/links', { as: 'alex@example.org', form: { title: 'Rota', url: 'https://example.org/rota' } });
+    expect((await http(res.location!, { as: 'alex@example.org' })).text).toContain('Link added for Maple Ridge Kin Club (demo).');
+  });
+});
+
 describe('sign-in modes fail closed', () => {
   it('no provider: every private route is 503 and shows nothing private', async () => {
     const closed = createApp({ service, auth: unconfiguredAuth('No sign-in provider is configured.') });

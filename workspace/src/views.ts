@@ -6,6 +6,11 @@ import type { HelpContact } from './service.ts';
 
 const base = (orgId: string) => `/w/${encodeURIComponent(orgId)}`;
 const hidden = (name: string, value: string) => html`<input type="hidden" name="${name}" value="${value}">`;
+
+/** A problem with what was typed, tied to one field when possible. */
+export type FormError = { field?: string; message: string };
+const errorFor = (e: FormError | undefined, field: string) => (e?.field === field ? html`<p class="field-error" id="err-${field}">${e.message}</p>` : '');
+const invalid = (e: FormError | undefined, field: string) => (e?.field === field ? new Raw(`aria-invalid="true" aria-describedby="err-${field}"`) : '');
 const contact = (e: DirectoryEntry) =>
   html`${e.email ? html`<a href="mailto:${e.email}">${e.email}</a>` : ''}${e.email && e.phone ? ' · ' : ''}${e.phone ? html`<a href="tel:${e.phone.replace(/[^\d+]/g, '')}">${e.phone}</a>` : ''}`;
 
@@ -34,7 +39,7 @@ ${p.admin
         <a class="btn" href="${b}/invite">Invite someone</a>
         <a class="btn" href="${b}/notes/new">Add meeting notes</a>
         <a class="btn secondary" href="${b}/committees">Manage committees</a>
-        <a class="btn secondary" href="${b}/manage">People and access</a>
+        <a class="btn secondary" href="${b}/manage#people">People and access</a>
       </div>
       ${p.draftCount || p.pendingInvites
         ? html`<p class="small" style="margin:12px 0 0">${p.draftCount ? html`<a href="${b}/notes">${p.draftCount} draft${p.draftCount === 1 ? '' : 's'} not yet finalized</a>` : ''}${p.draftCount && p.pendingInvites ? ' · ' : ''}${p.pendingInvites ? html`<a href="${b}/manage">${p.pendingInvites} pending invitation${p.pendingInvites === 1 ? '' : 's'}</a>` : ''}</p>`
@@ -103,7 +108,7 @@ ${p.admin
     <section class="card" aria-labelledby="m-h">
       <h2 id="m-h">Manage ${LEVEL_LABEL[p.org.level].toLowerCase()}</h2>
       <p class="muted small">Changes you make here apply to <strong>${p.org.name}</strong>.</p>
-      <div class="actions"><a class="btn" href="${b}/invite">Invite someone</a><a class="btn secondary" href="${b}/manage">People and access</a></div>
+      <div class="actions"><a class="btn" href="${b}/invite">Invite someone</a><a class="btn secondary" href="${b}/manage#people">People and access</a></div>
     </section>`
   : html`<p class="muted">You have member access to this ${LEVEL_LABEL[p.org.level].toLowerCase()} workspace.</p>`}`;
 }
@@ -150,7 +155,7 @@ ${p.admin
   : ''}`;
 }
 
-export function noteForm(p: { org: Organization; note?: Partial<MeetingNote>; today: string }) {
+export function noteForm(p: { org: Organization; note?: Partial<MeetingNote>; today: string; error?: FormError }) {
   const b = base(p.org.id);
   const n = p.note ?? {};
   return html`
@@ -158,9 +163,9 @@ export function noteForm(p: { org: Organization; note?: Partial<MeetingNote>; to
 <p class="muted">Saving a draft keeps it private to admins. Finalize when the notes are ready for members.</p>
 <form method="post" action="${n.id ? `${b}/notes/${n.id}` : `${b}/notes`}" class="card">
   <label for="title">Title</label>
-  <input type="text" id="title" name="title" value="${n.title ?? ''}" placeholder="November general meeting" required>
+  <input type="text" id="title" name="title" value="${n.title ?? ''}" placeholder="November general meeting" required ${invalid(p.error, 'title')}>${errorFor(p.error, 'title')}
   <label for="meetingDate">Meeting date</label>
-  <input type="date" id="meetingDate" name="meetingDate" value="${n.meetingDate ?? p.today}" required>
+  <input type="date" id="meetingDate" name="meetingDate" value="${n.meetingDate ?? p.today}" required ${invalid(p.error, 'meetingDate')}>${errorFor(p.error, 'meetingDate')}
   <label for="body">Notes</label>
   <textarea id="body" name="body">${n.body ?? ''}</textarea>
   <div class="actions">
@@ -182,21 +187,21 @@ ${p.admin ? html`<p class="note small">Being listed here doesn’t let anyone si
 <section class="card"><ul class="plain">
 ${p.entries.map(
   (e) => html`<li><div class="row"><div><strong>${e.name}</strong>${e.roleTitle ? html` <span class="muted">· ${e.roleTitle}</span>` : ''}<br><span class="small">${contact(e)}</span>${p.admin && e.contactVisibility === 'admins' ? html` <span class="badge small">Contact details: admins only</span>` : ''}</div>
-  ${p.admin ? html`<a class="btn secondary small" href="${b}/members/${e.id}/edit">Edit</a>` : ''}</div></li>`,
+  ${p.admin ? html`<a class="btn secondary small" href="${b}/members/${e.id}/edit" aria-label="Edit ${e.name}">Edit</a>` : ''}</div></li>`,
 )}
 </ul>${p.entries.length ? '' : html`<p class="muted">Nobody is listed yet.</p>`}</section>`;
 }
 
-export function directoryForm(p: { org: Organization; entry?: Partial<DirectoryEntry> }) {
+export function directoryForm(p: { org: Organization; entry?: Partial<DirectoryEntry>; error?: FormError }) {
   const b = base(p.org.id);
   const e = p.entry ?? {};
   return html`
 <h1>${e.id ? `Edit ${e.name ?? 'entry'}` : 'Add to the member directory'}</h1>
 <form method="post" action="${e.id ? `${b}/members/${e.id}` : `${b}/members`}" class="card">
   ${hidden('action', 'save')}
-  <label for="name">Name</label><input type="text" id="name" name="name" value="${e.name ?? ''}" required>
+  <label for="name">Name</label><input type="text" id="name" name="name" value="${e.name ?? ''}" required ${invalid(p.error, 'name')}>${errorFor(p.error, 'name')}
   <label for="roleTitle">Role (optional)</label><input type="text" id="roleTitle" name="roleTitle" value="${e.roleTitle ?? ''}" placeholder="Treasurer">
-  <label for="email">Email (optional)</label><input type="email" id="email" name="email" value="${e.email ?? ''}">
+  <label for="email">Email (optional)</label><input type="email" id="email" name="email" value="${e.email ?? ''}" ${invalid(p.error, 'email')}>${errorFor(p.error, 'email')}
   <label for="phone">Phone (optional)</label><input type="tel" id="phone" name="phone" value="${e.phone ?? ''}">
   <fieldset><legend>Who can see the email and phone?</legend>
     <label class="choice"><input type="radio" name="contactVisibility" value="members" ${e.contactVisibility !== 'admins' ? new Raw('checked') : ''}> Everyone in the club workspace</label>
@@ -204,14 +209,14 @@ export function directoryForm(p: { org: Organization; entry?: Partial<DirectoryE
   </fieldset>
   <div class="actions"><button class="btn" type="submit">Save</button><a class="btn secondary" href="${b}/members">Cancel</a></div>
 </form>
-${e.id ? html`<form method="post" action="${b}/members/${e.id}">${hidden('action', 'remove')}<button class="btn danger" type="submit">Remove from directory</button></form>` : ''}`;
+${e.id ? html`<section class="card"><h2>Remove</h2><p class="muted small">Removes ${e.name ?? 'this person'} from the directory. It doesn’t change whether they can sign in.</p><a class="btn danger" href="${b}/members/${e.id}/remove">✕ Remove from directory</a></section>` : ''}`;
 }
 
 // ---------------------------------------------------------------------------
 // Committees and links
 // ---------------------------------------------------------------------------
 
-export function committeesPage(p: { org: Organization; admin: boolean; committees: { id: string; name: string; purpose: string; chair?: DirectoryEntry; members: DirectoryEntry[] }[]; directory: DirectoryEntry[] }) {
+export function committeesPage(p: { org: Organization; admin: boolean; committees: { id: string; name: string; purpose: string; chair?: DirectoryEntry; members: DirectoryEntry[] }[]; directory: DirectoryEntry[]; error?: FormError }) {
   const b = base(p.org.id);
   return html`
 <h1>Committees</h1>
@@ -219,14 +224,14 @@ ${p.committees.map(
   (c) => html`<section class="card"><h2>${c.name}</h2>${c.purpose ? html`<p>${c.purpose}</p>` : ''}
   ${c.chair ? html`<p><strong>Chair:</strong> ${c.chair.name} <span class="small">${contact(c.chair)}</span></p>` : ''}
   ${c.members.length ? html`<p><strong>Members:</strong> ${c.members.map((m, i) => html`${i ? ', ' : ''}${m.name}`)}</p>` : ''}
-  ${p.admin ? html`<form method="post" action="${b}/committees/${c.id}">${hidden('action', 'remove')}<button class="btn danger small" type="submit">Remove committee</button></form>` : ''}</section>`,
+  ${p.admin ? html`<a class="btn danger small" href="${b}/committees/${c.id}/remove">✕ Remove committee</a>` : ''}</section>`,
 )}
 ${p.committees.length ? '' : html`<p class="muted">No committees yet.</p>`}
 ${p.admin
-  ? html`<form method="post" action="${b}/committees" class="card">
+  ? html`<form method="post" action="${b}/committees" class="card" id="add">
       <h2>Add a committee</h2>
       <p class="muted small">Chairing a committee doesn’t give anyone admin rights.</p>
-      <label for="cname">Committee name</label><input type="text" id="cname" name="name" required>
+      <label for="cname">Committee name</label><input type="text" id="cname" name="name" required ${invalid(p.error, 'name')}>${errorFor(p.error, 'name')}
       <label for="purpose">What it does (optional)</label><input type="text" id="purpose" name="purpose">
       <label for="chair">Chair (optional)</label>
       <select id="chair" name="chairEntryId"><option value="">No chair yet</option>${p.directory.map((e) => html`<option value="${e.id}">${e.name}</option>`)}</select>
@@ -236,20 +241,20 @@ ${p.admin
   : ''}`;
 }
 
-export function linksPage(p: { org: Organization; admin: boolean; links: ClubLink[] }) {
+export function linksPage(p: { org: Organization; admin: boolean; links: ClubLink[]; error?: FormError }) {
   const b = base(p.org.id);
   return html`
 <h1>Useful links</h1>
 <section class="card">${p.links.length
     ? html`<ul class="plain">${p.links.map(
         (l) => html`<li><div class="row"><div><a href="${l.url}" rel="noopener noreferrer" target="_blank"><strong>${l.title}</strong></a>${l.description ? html`<br><span class="muted small">${l.description}</span>` : ''}</div>
-        ${p.admin ? html`<form method="post" action="${b}/links/${l.id}">${hidden('action', 'remove')}<button class="btn danger small" type="submit">Remove</button></form>` : ''}</div></li>`,
+        ${p.admin ? html`<a class="btn danger small" href="${b}/links/${l.id}/remove" aria-label="Remove ${l.title}">✕ Remove</a>` : ''}</div></li>`,
       )}</ul>`
     : html`<p class="muted">No links yet.</p>`}</section>
 ${p.admin
   ? html`<form method="post" action="${b}/links" class="card"><h2>Add a link</h2>
-      <label for="ltitle">Name</label><input type="text" id="ltitle" name="title" placeholder="Club calendar" required>
-      <label for="lurl">Web address</label><input type="url" id="lurl" name="url" placeholder="https://" required>
+      <label for="ltitle">Name</label><input type="text" id="ltitle" name="title" placeholder="Club calendar" required ${invalid(p.error, 'title')}>${errorFor(p.error, 'title')}
+      <label for="lurl">Web address</label><input type="url" id="lurl" name="url" placeholder="https://" required ${invalid(p.error, 'url')}>${errorFor(p.error, 'url')}
       <label for="ldesc">Short description (optional)</label><input type="text" id="ldesc" name="description">
       <div class="actions"><button class="btn" type="submit">Add link</button></div></form>`
   : ''}`;
@@ -259,7 +264,7 @@ ${p.admin
 // Manage: invitations, people and access, workspace info, club to-do list
 // ---------------------------------------------------------------------------
 
-export function inviteForm(p: { org: Organization; values?: { email?: string; name?: string; level?: string } }) {
+export function inviteForm(p: { org: Organization; values?: { email?: string; name?: string; level?: string }; error?: FormError }) {
   const b = base(p.org.id);
   const v = p.values ?? {};
   return html`
@@ -267,7 +272,7 @@ export function inviteForm(p: { org: Organization; values?: { email?: string; na
 <p>They’ll get access to <strong>${p.org.name}</strong> only. No password is needed: they sign in with a code sent to this email address.</p>
 <form method="post" action="${b}/invite" class="card">
   <label for="iname">Their name (optional)</label><input type="text" id="iname" name="name" value="${v.name ?? ''}">
-  <label for="iemail">Their email address</label><input type="email" id="iemail" name="email" value="${v.email ?? ''}" required autocomplete="off">
+  <label for="iemail">Their email address</label><input type="email" id="iemail" name="email" value="${v.email ?? ''}" required autocomplete="off" ${invalid(p.error, 'email')}>${errorFor(p.error, 'email')}
   <fieldset><legend>What can they do?</legend>
     <label class="choice"><input type="radio" name="level" value="member" ${v.level !== 'admin' ? new Raw('checked') : ''}> <span><strong>Member</strong>: read meeting notes, the directory, committees and links.</span></label>
     <label class="choice"><input type="radio" name="level" value="admin" ${v.level === 'admin' ? new Raw('checked') : ''}> <span><strong>Admin</strong>: also add notes, invite people and manage the club.</span></label>
@@ -288,10 +293,22 @@ export function inviteCreated(p: { org: Organization; invitation: Invitation; li
   <label for="invlink">Workspace link</label>
   <input type="text" id="invlink" value="${p.link}" readonly>
   <div class="actions">
+    <button class="btn secondary" type="button" id="copy-link" hidden>Copy link</button>
     <a class="btn" href="mailto:${encodeURIComponent(i.email)}?subject=${encodeURIComponent(subject)}&amp;body=${encodeURIComponent(body)}">Write the invitation email</a>
-    <a class="btn secondary" href="${base(p.org.id)}/manage">Done</a>
+    <a class="btn secondary" href="${base(p.org.id)}/manage#invitations">Done</a>
   </div>
-</section>`;
+</section>
+<script>
+(() => {
+  const b = document.getElementById('copy-link');
+  if (!b || !navigator.clipboard) return;
+  b.hidden = false;
+  b.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText(document.getElementById('invlink').value); b.textContent = 'Copied ✓'; }
+    catch { b.textContent = 'Select the link above and copy it'; }
+  });
+})();
+</script>`;
 }
 
 export function managePage(p: {
@@ -300,56 +317,78 @@ export function managePage(p: {
   invitations: (Invitation & { expired: boolean })[];
   todo?: ClubTrackerItem[];
   meId: string;
+  error?: FormError;
 }) {
   const b = base(p.org.id);
   const label = LEVEL_LABEL[p.org.level].toLowerCase();
   const levelBadge = (l: AccessLevel) => html`<span class="badge ${l === 'admin' ? 'admin' : ''}">${l === 'admin' ? 'Admin' : 'Member'}</span>`;
   const admins = p.people.filter((x) => x.grant.level === 'admin').length;
   return html`
-<div class="row"><h1>People and access</h1><a class="btn" href="${b}/invite">Invite someone</a></div>
-<p class="muted">Who can sign in to <strong>${p.org.name}</strong>. Removing someone takes effect immediately.</p>
-${admins < 2 ? html`<p class="note">This ${label} has only one admin. Invite a second admin so someone can take over if needed.</p>` : ''}
-<section class="card" aria-labelledby="people-h"><h2 id="people-h">People with access</h2>
+<div class="row"><h1>Manage ${label}</h1><a class="btn" href="${b}/invite">Invite someone</a></div>
+<p class="muted">Changes on this page apply to <strong>${p.org.name}</strong>.</p>
+<nav aria-label="On this page" class="small" style="margin:0 0 16px">
+  <a href="#people">People and access</a> · <a href="#invitations">Invitations</a>${p.todo ? html` · <a href="#todo">To-do list</a>` : ''} · <a href="#about">About this ${label}</a>
+</nav>
+${admins < 2 ? html`<p class="note">This ${label} has only one admin. Make a second person an admin so someone can take over if needed.</p>` : ''}
+<section class="card" id="people" aria-labelledby="people-h"><h2 id="people-h">People and access</h2>
+<p class="muted small">Who can sign in. Removing someone takes effect immediately.</p>
 <ul class="plain">${p.people.map(
     (x) => html`<li>
       <div class="row"><div><strong>${x.person.name}</strong>${x.person.id === p.meId ? ' (you)' : ''} ${levelBadge(x.grant.level)}<br><span class="muted small">${x.person.email}</span></div></div>
-      <div class="actions">
+      ${x.isLastAdmin
+        ? html`<p class="small" style="margin:8px 0 0">${x.person.id === p.meId ? 'You’re' : 'This is'} the only admin. To step down, first make someone else an admin.</p>`
+        : html`<div class="actions">
         ${x.grant.level === 'member'
-          ? html`<form method="post" action="${b}/access/${x.grant.id}" class="inline">${hidden('action', 'make-admin')}<button class="btn secondary small" type="submit">Make admin</button></form>`
-          : html`<form method="post" action="${b}/access/${x.grant.id}" class="inline">${hidden('action', 'make-member')}<button class="btn secondary small" type="submit" ${x.isLastAdmin ? new Raw('disabled aria-describedby="last-admin"') : ''}>Change to member</button></form>`}
-        <form method="post" action="${b}/access/${x.grant.id}" class="inline">${hidden('action', 'remove')}<button class="btn danger small" type="submit" ${x.isLastAdmin ? new Raw('disabled aria-describedby="last-admin"') : ''}>Remove access</button></form>
-      </div>
-      ${x.isLastAdmin ? html`<p class="small muted" id="last-admin">Last admin: make someone else an admin before changing this.</p>` : ''}
+          ? html`<a class="btn secondary small" href="${b}/access/${x.grant.id}/make-admin">Make admin</a>`
+          : html`<form method="post" action="${b}/access/${x.grant.id}" class="inline">${hidden('action', 'make-member')}<button class="btn secondary small" type="submit">Change to member</button></form>`}
+        <a class="btn danger small" href="${b}/access/${x.grant.id}/remove">✕ Remove access</a>
+      </div>`}
     </li>`,
   )}</ul></section>
-<section class="card" aria-labelledby="inv-h"><h2 id="inv-h">Invitations not yet used</h2>
+<section class="card" id="invitations" aria-labelledby="inv-h"><h2 id="inv-h">Invitations not yet used</h2>
 ${p.invitations.length
     ? html`<ul class="plain">${p.invitations.map(
-        (i) => html`<li><div class="row"><div><strong>${i.name ?? i.email}</strong> ${levelBadge(i.level)}<br><span class="muted small">${i.email} · ${i.expired ? html`<strong>Expired</strong>` : html`Expires ${formatDate(i.expiresAt)}`}</span></div>
+        (i) => html`<li><div class="row"><div><strong>${i.name ?? i.email}</strong> ${levelBadge(i.level)}<br><span class="muted small">${i.email} · ${i.expired ? html`<strong>Expired</strong>` : html`Expires ${formatDate(i.expiresAt)}`}</span></div></div>
         <div class="actions">
           ${i.expired ? html`<form method="post" action="${b}/invite" class="inline">${hidden('email', i.email)}${hidden('name', i.name ?? '')}${hidden('level', i.level)}<button class="btn small" type="submit">Send a new invitation</button></form>` : ''}
-          <form method="post" action="${b}/invitations/${i.id}" class="inline">${hidden('action', 'revoke')}<button class="btn danger small" type="submit">Cancel invitation</button></form>
-        </div></div></li>`,
+          <a class="btn danger small" href="${b}/invitations/${i.id}/cancel">✕ Cancel invitation</a>
+        </div></li>`,
       )}</ul>`
     : html`<p class="muted">None.</p>`}
 </section>
 ${p.todo
-  ? html`<section class="card" aria-labelledby="todo-h"><h2 id="todo-h">Club to-do list <span class="badge">Admins only</span></h2>
+  ? html`<section class="card" id="todo" aria-labelledby="todo-h"><h2 id="todo-h">Club to-do list <span class="badge">Admins only</span></h2>
       <ul class="plain">${p.todo.map(
-        (t) => html`<li><div class="row"><strong>${t.title}</strong>
-          <form method="post" action="${b}/todo/${t.id}" class="inline"><label class="small" for="col-${t.id}" style="margin:0">Status</label>
-          <select id="col-${t.id}" name="column" onchange="this.form.submit()">${COLUMNS.map((c) => html`<option value="${c}" ${t.column === c ? new Raw('selected') : ''}>${COLUMN_LABELS[c]}</option>`)}</select>
-          <noscript><button class="btn small" type="submit">Save</button></noscript></form></div></li>`,
+        (t) => html`<li><form method="post" action="${b}/todo/${t.id}">
+          <label for="col-${t.id}" style="margin:0 0 6px">${t.title}</label>
+          <div class="row" style="flex-wrap:nowrap"><div><select id="col-${t.id}" name="column">${COLUMNS.map((c) => html`<option value="${c}" ${t.column === c ? new Raw('selected') : ''}>${COLUMN_LABELS[c]}</option>`)}</select></div>
+          <button class="btn secondary small" type="submit" aria-label="Save status of ${t.title}">Save</button></div></form></li>`,
       )}</ul>
-      <form method="post" action="${b}/todo"><label for="todo-title">Add a task</label><input type="text" id="todo-title" name="title" required>
+      <form method="post" action="${b}/todo"><label for="todo-title">Add a task</label><input type="text" id="todo-title" name="title" required ${invalid(p.error, 'title')}>${errorFor(p.error, 'title')}
       <div class="actions"><button class="btn secondary" type="submit">Add task</button></div></form>
     </section>`
   : ''}
-<form method="post" action="${b}/info" class="card"><h2>About this ${label}</h2>
+<form method="post" action="${b}/info" class="card" id="about"><h2>About this ${label}</h2>
   <label for="desc">Short description</label><input type="text" id="desc" name="description" value="${p.org.description}">
-  <label for="cemail">Contact email for “Get help” (optional)</label><input type="email" id="cemail" name="contactEmail" value="${p.org.contactEmail ?? ''}">
+  <label for="cemail">Contact email for “Get help” (optional)</label><input type="email" id="cemail" name="contactEmail" value="${p.org.contactEmail ?? ''}" ${invalid(p.error, 'contactEmail')}>${errorFor(p.error, 'contactEmail')}
   <div class="actions"><button class="btn secondary" type="submit">Save</button></div>
 </form>`;
+}
+
+/** A plain confirmation step before anything that removes or grants power. Works without JavaScript. */
+export function confirmPage(p: { title: string; message: Raw; action: string; fields: Record<string, string>; confirmLabel: string; cancelHref: string; cancelLabel: string; danger: boolean }) {
+  return html`
+<h1>${p.title}</h1>
+<section class="card">
+  <p>${p.message}</p>
+  <form method="post" action="${p.action}">
+    ${Object.entries(p.fields).map(([k, v]) => hidden(k, v))}
+    <div class="actions">
+      <button class="btn ${p.danger ? 'danger solid' : ''}" type="submit">${p.confirmLabel}</button>
+      <a class="btn secondary" href="${p.cancelHref}">${p.cancelLabel}</a>
+    </div>
+  </form>
+</section>`;
 }
 
 // ---------------------------------------------------------------------------

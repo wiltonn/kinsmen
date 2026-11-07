@@ -25,9 +25,12 @@ import type { Store } from './store.ts';
 
 /** A problem the person can fix (shown next to the form). */
 export class UserError extends Error {
-  constructor(message: string) {
+  /** The form field to mark, if the problem belongs to one. */
+  readonly field?: string;
+  constructor(message: string, field?: string) {
     super(message);
     this.name = 'UserError';
+    this.field = field;
   }
 }
 
@@ -149,7 +152,7 @@ export class WorkspaceService {
     requireManage(actor, orgId);
     const org = (await this.store.organization(orgId))!;
     const contactEmail = text(input.contactEmail, 200);
-    if (contactEmail && !isEmail(contactEmail)) throw new UserError('Enter a contact email like secretary@example.org, or leave it empty.');
+    if (contactEmail && !isEmail(contactEmail)) throw new UserError('Enter a contact email like secretary@example.org, or leave it empty.', 'contactEmail');
     await this.store.saveOrganization({ ...org, description: text(input.description, 1000), contactEmail: contactEmail || undefined });
   }
 
@@ -183,8 +186,8 @@ export class WorkspaceService {
     const title = text(input.title, 160);
     const meetingDate = text(input.meetingDate, 10);
     const body = text(input.body, 20000);
-    if (!title) throw new UserError('Add a title, for example “November general meeting”.');
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(meetingDate)) throw new UserError('Choose the meeting date.');
+    if (!title) throw new UserError('Add a title, for example “November general meeting”.', 'title');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(meetingDate)) throw new UserError('Choose the meeting date.', 'meetingDate');
     const existing = input.id ? await this.store.note(orgId, input.id) : undefined;
     if (input.id && !existing) throw new AccessDenied();
     if (existing?.status === 'final') throw new UserError('These notes are finalized. Reopen them as a draft to make changes.');
@@ -244,8 +247,8 @@ export class WorkspaceService {
     requireManage(actor, orgId);
     const name = text(input.name, 120);
     const email = text(input.email, 200);
-    if (!name) throw new UserError('Add the person’s name.');
-    if (email && !isEmail(email)) throw new UserError('That email address doesn’t look right.');
+    if (!name) throw new UserError('Add the person’s name.', 'name');
+    if (email && !isEmail(email)) throw new UserError('That email address doesn’t look right.', 'email');
     if (input.id && !(await this.store.directoryEntry(orgId, input.id))) throw new AccessDenied();
     const entry: DirectoryEntry = {
       id: input.id ?? this.newId(),
@@ -285,7 +288,7 @@ export class WorkspaceService {
   async saveCommittee(actor: Actor, orgId: string, input: { id?: string; name: unknown; purpose?: unknown; chairEntryId?: unknown; memberEntryIds?: unknown }) {
     requireManage(actor, orgId);
     const name = text(input.name, 120);
-    if (!name) throw new UserError('Give the committee a name.');
+    if (!name) throw new UserError('Give the committee a name.', 'name');
     if (input.id && !(await this.store.committee(orgId, input.id))) throw new AccessDenied();
     const valid = new Set((await this.store.directory(orgId)).map((e) => e.id));
     const chair = text(input.chairEntryId, 40);
@@ -311,8 +314,8 @@ export class WorkspaceService {
     requireManage(actor, orgId);
     const title = text(input.title, 120);
     const url = text(input.url, 500);
-    if (!title) throw new UserError('Give the link a name.');
-    if (!isSafeUrl(url)) throw new UserError('Enter the full web address, starting with https://');
+    if (!title) throw new UserError('Give the link a name.', 'title');
+    if (!isSafeUrl(url)) throw new UserError('Enter the full web address, starting with https://', 'url');
     const link: ClubLink = { id: this.newId(), orgId, title, url, description: text(input.description, 300) };
     await this.store.saveLink(link);
     return link;
@@ -336,7 +339,7 @@ export class WorkspaceService {
   async addTrackerItem(actor: Actor, orgId: string, input: { title: unknown; column?: unknown }) {
     requireManage(actor, orgId);
     const title = text(input.title, 120);
-    if (!title) throw new UserError('Describe the task.');
+    if (!title) throw new UserError('Describe the task.', 'title');
     const column = COLUMNS.includes(input.column as Column) ? (input.column as Column) : 'next';
     const item: ClubTrackerItem = { ...createTrackerItem({ title, description: '', column }, this.now(), `t-${this.newId().slice(0, 6)}`), orgId };
     await this.store.saveTrackerItem(item);
@@ -375,7 +378,7 @@ export class WorkspaceService {
   async invite(actor: Actor, orgId: string, input: { email: unknown; name?: unknown; level?: unknown }): Promise<Invitation> {
     requireManage(actor, orgId);
     const email = normalizeEmail(text(input.email, 200));
-    if (!isEmail(email)) throw new UserError('Enter the person’s email address, like name@example.org.');
+    if (!isEmail(email)) throw new UserError('Enter the person’s email address, like name@example.org.', 'email');
     const level: AccessLevel = input.level === 'admin' ? 'admin' : 'member';
     const existingPerson = await this.store.personByEmail(email);
     if (existingPerson) {
@@ -400,6 +403,13 @@ export class WorkspaceService {
     };
     await this.store.saveInvitation(invitation);
     return invitation;
+  }
+
+  async invitation(actor: Actor, orgId: string, invitationId: string) {
+    requireManage(actor, orgId);
+    const inv = await this.store.invitation(orgId, invitationId);
+    if (!inv) throw new AccessDenied();
+    return { ...inv, expired: isExpired(inv, this.now()) };
   }
 
   async revokeInvitation(actor: Actor, orgId: string, invitationId: string) {
