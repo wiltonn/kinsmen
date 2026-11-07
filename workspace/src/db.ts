@@ -1,7 +1,8 @@
 /**
- * The tiny SQL interface the store needs, with two adapters:
+ * The tiny SQL interface the store needs, with three adapters:
  *   - Node's built-in SQLite (local demo and tests)
  *   - Cloudflare D1 (shared deployment; D1 is SQLite)
+ *   - sql.js, SQLite compiled to WebAssembly (the in-browser /club-demo)
  * Same schema and queries on both.
  */
 
@@ -26,6 +27,35 @@ export function sqliteDb(db: SyncSqlite): SqlDb {
     },
     async run(sql, params = []) {
       db.prepare(sql).run(...params);
+    },
+    async exec(sql) {
+      db.exec(sql);
+    },
+  };
+}
+
+/** Minimal shape of a sql.js Database (structural, so this file has no sql.js import). */
+interface SqlJsLike {
+  exec(sql: string): unknown;
+  run(sql: string, params?: SqlValue[]): unknown;
+  prepare(sql: string): { bind(params: SqlValue[]): boolean; step(): boolean; getAsObject(): Record<string, unknown>; free(): boolean };
+}
+
+export function sqlJsDb(db: SqlJsLike): SqlDb {
+  return {
+    async all<T>(sql: string, params: SqlValue[] = []) {
+      const statement = db.prepare(sql);
+      try {
+        statement.bind(params);
+        const rows: T[] = [];
+        while (statement.step()) rows.push(statement.getAsObject() as T);
+        return rows;
+      } finally {
+        statement.free();
+      }
+    },
+    async run(sql, params = []) {
+      db.run(sql, params);
     },
     async exec(sql) {
       db.exec(sql);

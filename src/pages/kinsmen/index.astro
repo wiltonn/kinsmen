@@ -5,10 +5,13 @@ import SectionHeading from '../../components/SectionHeading.astro';
 import ReviewFlag from '../../components/ReviewFlag.astro';
 import Photo from '../../components/Photo.astro';
 import { getSiteState } from '../../lib/site';
+import { CLUB_DEMO_PATH, clubDemoEnabled } from '../../lib/club-demo';
 
 const { content } = await getSiteState();
 const { kinsmen, settings, images } = content;
 const land = settings.landAcknowledgement;
+// Build-time flag; off by default (see src/lib/club-demo.ts).
+const showClubDemo = clubDemoEnabled(process.env);
 ---
 
 <BaseLayout
@@ -71,6 +74,22 @@ const land = settings.landAcknowledgement;
         <span class="mt-2 block text-bark-700">Lend a hand at the Sugar Bush or join the club.</span>
       </a>
     </section>
+
+    {
+      showClubDemo && (
+        <section aria-labelledby="for-club-members" class="rounded-[var(--radius-card)] p-6 ring-1 ring-forest-100 sm:p-8">
+          <p class="eyebrow">For club members</p>
+          <h2 id="for-club-members" class="mt-1 font-display text-2xl font-semibold text-forest-900">See the proposed club workspace</h2>
+          <p class="mt-2 max-w-2xl text-bark-700">
+            A private online space for meeting notes, the member directory, committees and useful links. Try it on your phone with made-up sample
+            information. No account needed.
+          </p>
+          <p class="mt-4">
+            <a href={CLUB_DEMO_PATH} class="btn btn-secondary">Try the club workspace</a>
+          </p>
+        </section>
+      )
+    }
 
     {
       land && (

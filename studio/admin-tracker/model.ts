@@ -231,7 +231,9 @@ export const SEED_CREATED_AT = '2026-11-07T00:00:00.000Z';
 
 type SeedInput = Omit<TrackerItem, 'createdAt' | 'updatedAt' | 'priorityIllustrative'>;
 
-const seed = (s: SeedInput): TrackerItem => ({
+// Marked side-effect free so bundles that only use the pure functions above
+// (the public Club workspace demo) drop the starter items entirely.
+const seed = /* @__NO_SIDE_EFFECTS__ */ (s: SeedInput): TrackerItem => ({
   ...s,
   priorityIllustrative: Boolean(s.priority),
   createdAt: SEED_CREATED_AT,
@@ -312,10 +314,10 @@ export const canEditTracker = (roles: { name: string }[] | undefined) =>
  * Strings that must never appear in the public website's build output
  * (checked by scripts/check-private-data.mjs after every `npm run build`).
  */
-export const PRIVATE_MARKERS: string[] = [
+export const PRIVATE_MARKERS: string[] = /* @__PURE__ */ (() => [
   TRACKER_TYPE,
   TRACKER_ID_PREFIX,
   DEMO_STORAGE_KEY,
   'Website Admin',
   ...SEED_ITEMS.flatMap((i) => [i.id, i.title]),
-];
+])();

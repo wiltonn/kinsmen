@@ -20,6 +20,14 @@ export interface AppOptions {
     allowed?: () => Promise<string[]>;
     reset: () => Promise<void>;
   };
+  /**
+   * The public in-browser demo (/club-demo) only. The app runs inside the
+   * visitor's own browser tab on fictional data, and every request is built by
+   * the demo's page script, which can't set an Origin header; so the
+   * cross-site check is skipped. Invitations say nothing was sent and offer no
+   * link or email. Never set by the local server or the Worker.
+   */
+  publicDemo?: boolean;
 }
 
 const LAST_WS_COOKIE = 'kfsb_last_workspace';
@@ -76,7 +84,7 @@ export function createApp(opts: AppOptions) {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, '') || '/';
 
-    if (request.method === 'POST') {
+    if (request.method === 'POST' && !opts.publicDemo) {
       // Reject cross-site form posts.
       const origin = request.headers.get('origin');
       if (!origin || origin !== url.origin) return new Response('Forbidden', { status: 403 });
@@ -85,7 +93,7 @@ export function createApp(opts: AppOptions) {
     // Developer panel (demo only; 404 everywhere else).
     if (path === '/__demo') {
       if (!isDemo) return page(request, { title: 'Not found' }, V.notFoundPage(), 404);
-      if (request.method === 'POST') {
+      if (request.method === 'POST' && !opts.publicDemo) {
         const form = await request.formData();
         if (form.get('reset')) {
           await opts.demo!.reset();
@@ -367,7 +375,7 @@ export function createApp(opts: AppOptions) {
     if (section === 'invite') {
       if (!post && rest[1]) {
         const invitation = await service.invitation(actor, org.id, rest[1]);
-        return page(request, ctx('Invitation ready', { flash: undefined }), V.inviteCreated({ org, invitation, link: `${url.origin}/` }));
+        return page(request, ctx('Invitation ready', { flash: undefined }), V.inviteCreated({ org, invitation, link: `${url.origin}/`, demo: opts.publicDemo }));
       }
       if (!post) return page(request, ctx('Invite someone'), V.inviteForm({ org }));
       const values = { email: field('email'), name: field('name'), level: field('level') };

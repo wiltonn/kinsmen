@@ -70,6 +70,7 @@ See `.env.example`. Nothing in it is secret except an optional `SANITY_READ_TOKE
 | `STRICT_CONTENT_REVIEW` | `true` makes a production build fail while any content is still "Needs review". |
 | `SANITY_API_HOST` | Testing only: point the Sanity client at a mock API to rehearse a production build without a real project. |
 | `SITE_NOW`, `FIXTURE_SCENARIO`, `FIXTURE_OPENTABLE_*` | Non-production previews only (see above). |
+| `ENABLE_CLUB_DEMO` | `true` adds the public **Club workspace demo**: a "Try the club workspace" link on `/kinsmen` and the demo at `/club-demo`. Off by default. When it's off, `/club-demo` isn't built and returns 404. See [docs/club-demo.md](docs/club-demo.md). |
 
 ## How it fits together
 
@@ -182,3 +183,4 @@ deploy hook every morning if the repository secret `DEPLOY_HOOK_URL` is set.
 - [Launch checklist](docs/launch-checklist.md)
 - [Spike: Website Admin tracker](docs/spikes/admin-tracker.md) (`npm run admin:demo` → http://127.0.0.1:3334)
 - [Spike: Club workspace](docs/spikes/club-workspace.md) (`npm run workspace:demo` → http://127.0.0.1:4322)
+- [Club workspace demo on the website](docs/club-demo.md) (`ENABLE_CLUB_DEMO=true`, `/club-demo`)

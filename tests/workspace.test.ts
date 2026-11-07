@@ -8,7 +8,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { createApp } from '../workspace/src/app';
 import { authFromEnv, cloudflareAccessAuth, DEMO_COOKIE, demoAuth, unconfiguredAuth, verifyAccessJwt, type Jwks } from '../workspace/src/auth';
 import { sqliteDb } from '../workspace/src/db';
-import { DEMO_IDENTITIES, DEMO_ORGS, seedDemo, WORKSPACE_PRIVATE_MARKERS } from '../workspace/src/demo-data';
+import { DEMO_IDENTITIES, DEMO_ORGS, PUBLIC_DEMO_MARKERS, seedDemo, WORKSPACE_PRIVATE_MARKERS } from '../workspace/src/demo-data';
 import { validateOrganizations, type AccessGrant, type Organization } from '../workspace/src/domain';
 import { AccessDenied, directoryView, levelIn, wouldRemoveLastAdmin, type Actor } from '../workspace/src/policy';
 import { UserError, WorkspaceService } from '../workspace/src/service';
@@ -451,7 +451,7 @@ describe('Cloudflare Access JWT verification', () => {
     const accessApp = createApp({ service, auth: cloudflareAccessAuth(config) });
     const ok = await accessApp.handle(new Request(`${ORIGIN}/w/club-maple`, { headers: { 'cf-access-jwt-assertion': await sign({ aud: 'aud-123', iss: `https://${team}`, exp, email: 'mary@example.org' }) } }));
     expect(ok.status).toBe(200);
-    expect(await ok.text()).toContain('Read the latest notes');
+    expect(await ok.text()).toContain('Read the latest meeting notes');
     const forged = await accessApp.handle(new Request(`${ORIGIN}/w/club-maple`, { headers: { 'cf-access-jwt-assertion': 'a.b.c' } }));
     expect(forged.status).toBe(401);
   });
@@ -459,6 +459,10 @@ describe('Cloudflare Access JWT verification', () => {
 
 describe('public boundary', () => {
   it('the post-build check covers workspace people, clubs and private records', () => {
-    for (const s of ['Mary Member', 'mary@example.org', 'Maple Ridge Kin Club (demo)', 'Demo District 7', 'PRIVATE TO CEDAR FALLS', 'November general meeting (draft)', 'Jamie Chair', 'kfsb_demo_identity']) expect(WORKSPACE_PRIVATE_MARKERS).toContain(s);
+    // Never public, not even in the /club-demo bundle:
+    for (const s of ['Cedar Falls Kin Club (demo)', 'Blair Cedar', 'blair@example.org', 'Dana District', 'PRIVATE TO CEDAR FALLS', 'Morgan Cedar-Private', 'Cedar Falls shared drive']) expect(WORKSPACE_PRIVATE_MARKERS).toContain(s);
+    // Public only inside the demo's own files, and only with ENABLE_CLUB_DEMO=true:
+    for (const s of ['Mary Member', 'mary@example.org', 'Maple Ridge Kin Club (demo)', 'Demo District 7', 'November general meeting (draft)', 'Jamie Chair', 'kfsb_demo_identity', 'Manage club']) expect(PUBLIC_DEMO_MARKERS).toContain(s);
+    expect(WORKSPACE_PRIVATE_MARKERS.filter((m) => PUBLIC_DEMO_MARKERS.includes(m))).toEqual([]);
   });
 });

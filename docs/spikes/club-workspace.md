@@ -13,6 +13,8 @@ Open **http://127.0.0.1:4322/**. The demo uses fictional people and clubs, store
 
 `WORKSPACE_AUTH=none npm run workspace:demo` shows the fail-closed behaviour: every private page returns 503.
 
+A public, in-browser version of this demo can also be built into the website (`ENABLE_CLUB_DEMO=true`, at `/club-demo`). See [../club-demo.md](../club-demo.md).
+
 ## What was there before
 
 I found no earlier Members, Meetings, Committees or Links code in this checkout, its branches or the remote, so those were built fresh here. The Website Admin tracker (`studio/admin-tracker`, `docs/spikes/admin-tracker.md`) is unchanged and stays in **website administration** (Sanity Studio). The launch checklist and content review stay there too.
@@ -23,7 +25,7 @@ I found no earlier Members, Meetings, Committees or Links code in this checkout,
 
 **As a club member (try on a phone-sized window):** on `/__demo`, choose **Mary Member**.
 1. You land in **Maple Ridge Kin Club (demo)**. There's no picker or role choice.
-2. Tap **Read the latest notes**. That's the October notes, one tap away.
+2. Tap **Read the latest meeting notes**. That's the October notes, one tap away.
 3. The November draft is never shown. Opening its URL directly gives "not found".
 4. **Members**, **Committees** and **Links** are read-only. **Sign out** is at the top of every page.
 
