@@ -4,7 +4,7 @@
  */
 import { DEMO_COOKIE, readCookie, type AuthProvider } from './auth.ts';
 import { LEVEL_LABEL, type Organization } from './domain.ts';
-import { layout, type LayoutContext, Raw } from './html.ts';
+import { html, layout, type LayoutContext, Raw } from './html.ts';
 import { AccessDenied, type Actor } from './policy.ts';
 import { UserError, type WorkspaceService } from './service.ts';
 import * as V from './views.ts';
@@ -24,22 +24,22 @@ export interface AppOptions {
 
 const LAST_WS_COOKIE = 'kfsb_last_workspace';
 
-const FLASH: Record<string, string> = {
-  'note-draft': 'Draft saved. Members can’t see it until you finalize it.',
-  'note-final': 'Finalized. Members can now read these notes.',
-  'note-reopened': 'Reopened as a draft. Members can’t see these notes until you finalize them again.',
-  'member-saved': 'Saved to the member directory.',
-  'member-removed': 'Removed from the member directory.',
-  'committee-saved': 'Committee added.',
-  'committee-removed': 'Committee removed.',
-  'link-saved': 'Link added.',
-  'link-removed': 'Link removed.',
-  'access-admin': 'Saved. They are now an admin.',
-  'access-member': 'Saved. They now have member access.',
-  'access-removed': 'Access removed. They can no longer open this workspace.',
-  'invite-cancelled': 'Invitation cancelled. The link no longer lets them in.',
-  'info-saved': 'Saved.',
-  'todo-saved': 'To-do list saved.',
+const FLASH: Record<string, (ws: string) => string> = {
+  'note-draft': () => 'Draft saved. Members can’t see it until you finalize it.',
+  'note-final': (ws) => `Finalized. Members of ${ws} can now read these notes.`,
+  'note-reopened': () => 'Reopened as a draft. Members can’t see these notes until you finalize them again.',
+  'member-saved': (ws) => `Saved to the ${ws} member directory.`,
+  'member-removed': (ws) => `Removed from the ${ws} member directory.`,
+  'committee-saved': (ws) => `Committee added to ${ws}.`,
+  'committee-removed': (ws) => `Committee removed from ${ws}.`,
+  'link-saved': (ws) => `Link added for ${ws}.`,
+  'link-removed': (ws) => `Link removed from ${ws}.`,
+  'access-admin': (ws) => `Saved. They are now an admin of ${ws}.`,
+  'access-member': (ws) => `Saved. They now have member access to ${ws}.`,
+  'access-removed': (ws) => `Access removed. They can no longer open ${ws}.`,
+  'invite-cancelled': (ws) => `Invitation cancelled. The link no longer lets them into ${ws}.`,
+  'info-saved': (ws) => `Details saved for ${ws}.`,
+  'todo-saved': (ws) => `To-do list saved for ${ws}.`,
 };
 
 const htmlResponse = (body: string, status = 200, headers: Record<string, string> = {}) =>
@@ -156,27 +156,30 @@ export function createApp(opts: AppOptions) {
           { href: `${b}/members`, label: 'Members', current: section === 'members' },
           { href: `${b}/committees`, label: 'Committees', current: section === 'committees' },
           { href: `${b}/links`, label: 'Links', current: section === 'links' },
-          ...(admin ? [{ href: `${b}/manage`, label: 'Manage club', current: ['manage', 'invite'].includes(section) }] : []),
+          ...(admin ? [{ href: `${b}/manage`, label: 'Manage club', current: ['manage', 'invite', 'access', 'invitations'].includes(section) }] : []),
         ]
-      : [{ href: b, label: 'Home', current: section === '' }, ...(admin ? [{ href: `${b}/manage`, label: `Manage ${LEVEL_LABEL[org.level].toLowerCase()}`, current: ['manage', 'invite'].includes(section) }] : [])];
+      : [{ href: b, label: 'Home', current: section === '' }, ...(admin ? [{ href: `${b}/manage`, label: `Manage ${LEVEL_LABEL[org.level].toLowerCase()}`, current: ['manage', 'invite', 'access', 'invitations'].includes(section) }] : [])];
     const ctx = (title: string, extra: Partial<LayoutContext> = {}): Omit<LayoutContext, 'demo' | 'signOutPath'> => ({
       title,
       workspace: { id: org.id, name: org.name, levelLabel: `${LEVEL_LABEL[org.level]} workspace` },
       nav,
       canSwitch,
       signedIn: true,
-      flash: FLASH[url.searchParams.get('done') ?? ''],
+      flash: FLASH[url.searchParams.get('done') ?? '']?.(org.name),
       ...extra,
     });
     const remember = { 'set-cookie': `${LAST_WS_COOKIE}=${encodeURIComponent(org.id)}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000` };
-    const done = (where: string, key: string) => redirect(`${where}${where.includes('?') ? '&' : '?'}done=${key}`);
+    const done = (where: string, key: string, hash = '') => redirect(`${where}${where.includes('?') ? '&' : '?'}done=${key}${hash}`);
     const post = request.method === 'POST';
     const form = post ? await request.formData() : undefined;
     const field = (k: string) => (form?.get(k) ?? undefined) as string | undefined;
-    const fail = (title: string, body: Raw, e: unknown) => {
-      if (e instanceof UserError) return page(request, ctx(title, { error: e.message }), body, 422);
-      throw e;
+    /** Re-show the form with the problem: a banner, and the field marked when known. */
+    const fail = (title: string, body: (error: V.FormError) => Raw | Promise<Raw>, e: unknown) => {
+      if (!(e instanceof UserError)) throw e;
+      const error = { field: e.field, message: e.message };
+      return Promise.resolve(body(error)).then((b) => page(request, ctx(title, { error: e.message }), b, 422));
     };
+    const confirm = (title: string, c: Omit<Parameters<typeof V.confirmPage>[0], 'title'>) => page(request, ctx(title), V.confirmPage({ title, ...c }));
     const today = new Date().toISOString().slice(0, 10);
 
     // Home
@@ -215,7 +218,7 @@ export function createApp(opts: AppOptions) {
           const note = await service.saveNote(actor, org.id, input);
           return done(`${b}/notes/${note.id}`, note.status === 'final' ? 'note-final' : 'note-draft');
         } catch (e) {
-          return fail('Add meeting notes', V.noteForm({ org, today, note: { title: input.title, meetingDate: input.meetingDate, body: input.body } }), e);
+          return fail('Add meeting notes', (error) => V.noteForm({ org, today, error, note: { title: input.title, meetingDate: input.meetingDate, body: input.body } }), e);
         }
       }
       if (id && rest[2] === 'edit' && !post) {
@@ -238,7 +241,7 @@ export function createApp(opts: AppOptions) {
           const note = await service.saveNote(actor, org.id, input);
           return done(`${b}/notes/${note.id}`, note.status === 'final' ? 'note-final' : 'note-draft');
         } catch (e) {
-          return fail('Edit notes', V.noteForm({ org, today, note: { id, title: input.title, meetingDate: input.meetingDate, body: input.body } }), e);
+          return fail('Edit notes', (error) => V.noteForm({ org, today, error, note: { id, title: input.title, meetingDate: input.meetingDate, body: input.body } }), e);
         }
       }
       if (id && !post) return page(request, ctx('Meeting notes'), V.noteView({ org, admin, note: await service.note(actor, org.id, id) }));
@@ -256,6 +259,19 @@ export function createApp(opts: AppOptions) {
         if (!admin) throw new AccessDenied();
         return page(request, ctx('Edit directory entry'), V.directoryForm({ org, entry: await service.directoryEntry(actor, org.id, id) }));
       }
+      if (id && rest[2] === 'remove' && !post) {
+        if (!admin) throw new AccessDenied();
+        const entry = await service.directoryEntry(actor, org.id, id);
+        return confirm('Remove from directory?', {
+          message: html`Remove <strong>${entry.name}</strong> from the <strong>${org.name}</strong> member directory? This doesn’t change whether they can sign in.`,
+          action: `${b}/members/${id}`,
+          fields: { action: 'remove' },
+          confirmLabel: 'Yes, remove from directory',
+          cancelHref: `${b}/members/${id}/edit`,
+          cancelLabel: 'Keep them listed',
+          danger: true,
+        });
+      }
       if (post) {
         if (id && field('action') === 'remove') {
           await service.removeDirectoryEntry(actor, org.id, id);
@@ -266,7 +282,7 @@ export function createApp(opts: AppOptions) {
           await service.saveDirectoryEntry(actor, org.id, input);
           return done(`${b}/members`, 'member-saved');
         } catch (e) {
-          return fail('Member directory', V.directoryForm({ org, entry: input as never }), e);
+          return fail('Member directory', (error) => V.directoryForm({ org, error, entry: input as never }), e);
         }
       }
     }
@@ -274,6 +290,20 @@ export function createApp(opts: AppOptions) {
     // Committees
     if (section === 'committees') {
       const id = rest[1];
+      if (id && rest[2] === 'remove' && !post) {
+        if (!admin) throw new AccessDenied();
+        const committee = (await service.committees(actor, org.id)).find((c) => c.id === id);
+        if (!committee) throw new AccessDenied();
+        return confirm('Remove committee?', {
+          message: html`Remove the <strong>${committee.name}</strong> committee from <strong>${org.name}</strong>? The people stay in the member directory.`,
+          action: `${b}/committees/${id}`,
+          fields: { action: 'remove' },
+          confirmLabel: 'Yes, remove committee',
+          cancelHref: `${b}/committees`,
+          cancelLabel: 'Keep committee',
+          danger: true,
+        });
+      }
       if (post) {
         if (id && field('action') === 'remove') {
           await service.removeCommittee(actor, org.id, id);
@@ -283,7 +313,7 @@ export function createApp(opts: AppOptions) {
           await service.saveCommittee(actor, org.id, { name: field('name'), purpose: field('purpose'), chairEntryId: field('chairEntryId'), memberEntryIds: form!.getAll('memberEntryIds') });
           return done(`${b}/committees`, 'committee-saved');
         } catch (e) {
-          return fail('Committees', V.committeesPage({ org, admin, committees: await service.committees(actor, org.id), directory: await service.directory(actor, org.id) }), e);
+          return fail('Committees', async (error) => V.committeesPage({ org, admin, error, committees: await service.committees(actor, org.id), directory: await service.directory(actor, org.id) }), e);
         }
       }
       return page(request, ctx('Committees'), V.committeesPage({ org, admin, committees: await service.committees(actor, org.id), directory: admin ? await service.directory(actor, org.id) : [] }));
@@ -292,6 +322,20 @@ export function createApp(opts: AppOptions) {
     // Links
     if (section === 'links') {
       const id = rest[1];
+      if (id && rest[2] === 'remove' && !post) {
+        if (!admin) throw new AccessDenied();
+        const link = (await service.links(actor, org.id)).find((l) => l.id === id);
+        if (!link) throw new AccessDenied();
+        return confirm('Remove link?', {
+          message: html`Remove the link <strong>${link.title}</strong> from <strong>${org.name}</strong>?`,
+          action: `${b}/links/${id}`,
+          fields: { action: 'remove' },
+          confirmLabel: 'Yes, remove link',
+          cancelHref: `${b}/links`,
+          cancelLabel: 'Keep link',
+          danger: true,
+        });
+      }
       if (post) {
         if (id && field('action') === 'remove') {
           await service.removeLink(actor, org.id, id);
@@ -301,7 +345,7 @@ export function createApp(opts: AppOptions) {
           await service.saveLink(actor, org.id, { title: field('title'), url: field('url'), description: field('description') });
           return done(`${b}/links`, 'link-saved');
         } catch (e) {
-          return fail('Useful links', V.linksPage({ org, admin, links: await service.links(actor, org.id) }), e);
+          return fail('Useful links', async (error) => V.linksPage({ org, admin, error, links: await service.links(actor, org.id) }), e);
         }
       }
       return page(request, ctx('Useful links'), V.linksPage({ org, admin, links: await service.links(actor, org.id) }));
@@ -310,25 +354,67 @@ export function createApp(opts: AppOptions) {
     // Everything below is admin-only (the service enforces it too).
     if (!admin) throw new AccessDenied();
 
-    const manage = async (extra: Partial<LayoutContext> = {}, status = 200) =>
+    const manage = async (error?: UserError) =>
       page(
         request,
-        ctx('People and access', extra),
-        V.managePage({ org, people: await service.people(actor, org.id), invitations: await service.invitations(actor, org.id), todo: isClub ? await service.trackerItems(actor, org.id) : undefined, meId: actor.person.id }),
-        status,
+        ctx(`Manage ${LEVEL_LABEL[org.level].toLowerCase()}`, error ? { error: error.message } : {}),
+        V.managePage({ org, error: error && { field: error.field, message: error.message }, people: await service.people(actor, org.id), invitations: await service.invitations(actor, org.id), todo: isClub ? await service.trackerItems(actor, org.id) : undefined, meId: actor.person.id }),
+        error ? 422 : 200,
       );
 
     if (section === 'manage' && !post) return manage();
 
     if (section === 'invite') {
+      if (!post && rest[1]) {
+        const invitation = await service.invitation(actor, org.id, rest[1]);
+        return page(request, ctx('Invitation ready', { flash: undefined }), V.inviteCreated({ org, invitation, link: `${url.origin}/` }));
+      }
       if (!post) return page(request, ctx('Invite someone'), V.inviteForm({ org }));
       const values = { email: field('email'), name: field('name'), level: field('level') };
       try {
         const invitation = await service.invite(actor, org.id, values);
-        return page(request, ctx('Invitation ready', { flash: 'Invitation saved.' }), V.inviteCreated({ org, invitation, link: `${url.origin}/` }));
+        return redirect(`${b}/invite/${encodeURIComponent(invitation.id)}`);
       } catch (e) {
-        return fail('Invite someone', V.inviteForm({ org, values }), e);
+        return fail('Invite someone', (error) => V.inviteForm({ org, values, error }), e);
       }
+    }
+
+    // Confirmation steps (GET), each posting to the existing action.
+    if (section === 'access' && !post && rest[1] && (rest[2] === 'remove' || rest[2] === 'make-admin')) {
+      const row = (await service.people(actor, org.id)).find((x) => x.grant.id === rest[1]);
+      if (!row) throw new AccessDenied();
+      const name = row.person.name;
+      return rest[2] === 'remove'
+        ? confirm('Remove access?', {
+            message: html`Remove <strong>${name}</strong>’s access to <strong>${org.name}</strong>? They’ll lose access straight away. Their directory listing isn’t changed.`,
+            action: `${b}/access/${rest[1]}`,
+            fields: { action: 'remove' },
+            confirmLabel: 'Yes, remove access',
+            cancelHref: `${b}/manage#people`,
+            cancelLabel: 'Keep access',
+            danger: true,
+          })
+        : confirm('Make admin?', {
+            message: html`Make <strong>${name}</strong> an admin of <strong>${org.name}</strong>? They’ll be able to add notes, invite people and remove access.`,
+            action: `${b}/access/${rest[1]}`,
+            fields: { action: 'make-admin' },
+            confirmLabel: 'Yes, make admin',
+            cancelHref: `${b}/manage#people`,
+            cancelLabel: 'Not now',
+            danger: false,
+          });
+    }
+    if (section === 'invitations' && !post && rest[1] && rest[2] === 'cancel') {
+      const inv = await service.invitation(actor, org.id, rest[1]);
+      return confirm('Cancel invitation?', {
+        message: html`Cancel the invitation for <strong>${inv.name ?? inv.email}</strong> (${inv.email}) to <strong>${org.name}</strong>? Their link will stop working.`,
+        action: `${b}/invitations/${rest[1]}`,
+        fields: { action: 'revoke' },
+        confirmLabel: 'Yes, cancel invitation',
+        cancelHref: `${b}/manage#invitations`,
+        cancelLabel: 'Keep invitation',
+        danger: true,
+      });
     }
 
     if (section === 'access' && post && rest[1]) {
@@ -339,27 +425,27 @@ export function createApp(opts: AppOptions) {
         else if (action === 'remove') await service.revokeAccess(actor, org.id, rest[1]);
         else throw new AccessDenied();
       } catch (e) {
-        if (e instanceof UserError) return manage({ error: e.message }, 422);
+        if (e instanceof UserError) return manage(e);
         throw e;
       }
       // If you removed your own admin access, you can't come back here.
       const after = await service.signIn(actor.person.email);
       const stillAdmin = after.kind === 'ok' && service.isAdmin(after.actor, org.id);
       const key = action === 'make-admin' ? 'access-admin' : action === 'make-member' ? 'access-member' : 'access-removed';
-      return done(stillAdmin ? `${b}/manage` : '/', key);
+      return done(stillAdmin ? `${b}/manage` : '/', key, stillAdmin ? '#people' : '');
     }
 
     if (section === 'invitations' && post && rest[1] && field('action') === 'revoke') {
       await service.revokeInvitation(actor, org.id, rest[1]);
-      return done(`${b}/manage`, 'invite-cancelled');
+      return done(`${b}/manage`, 'invite-cancelled', '#invitations');
     }
 
     if (section === 'info' && post) {
       try {
         await service.updateWorkspaceInfo(actor, org.id, { description: field('description'), contactEmail: field('contactEmail') });
-        return done(`${b}/manage`, 'info-saved');
+        return done(`${b}/manage`, 'info-saved', '#about');
       } catch (e) {
-        if (e instanceof UserError) return manage({ error: e.message }, 422);
+        if (e instanceof UserError) return manage(e);
         throw e;
       }
     }
@@ -368,9 +454,9 @@ export function createApp(opts: AppOptions) {
       try {
         if (rest[1]) await service.moveTrackerItem(actor, org.id, rest[1], field('column'));
         else await service.addTrackerItem(actor, org.id, { title: field('title'), column: 'next' });
-        return done(`${b}/manage`, 'todo-saved');
+        return done(`${b}/manage`, 'todo-saved', '#todo');
       } catch (e) {
-        if (e instanceof UserError) return manage({ error: e.message }, 422);
+        if (e instanceof UserError) return manage(e);
         throw e;
       }
     }
