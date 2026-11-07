@@ -2,6 +2,7 @@
 dist/
 .astro/
 studio/dist/
+.workspace-data/
 
 # dependencies
 node_modules/

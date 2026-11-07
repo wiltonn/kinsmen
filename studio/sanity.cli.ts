@@ -7,4 +7,6 @@ export default defineCliConfig({
   },
   // Hosted at https://<studioHost>.sanity.studio after `npm run deploy`.
   studioHost: process.env.SANITY_STUDIO_HOST,
+  // The Website Admin tool bundles ../docs/launch-checklist.md, outside the Studio folder.
+  vite: (config) => ({ ...config, server: { ...config.server, fs: { ...config.server?.fs, allow: [...(config.server?.fs?.allow ?? []), '..'] } } }),
 });

@@ -39,3 +39,4 @@ jobs:
       - run: npx sanity schema validate
         env:
           SANITY_STUDIO_PROJECT_ID: ci-placeholder
+      - run: npm run typecheck
