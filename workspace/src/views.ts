@@ -51,7 +51,7 @@ ${p.admin
   ${p.latest
     ? html`<p style="margin:0 0 4px"><strong>${p.latest.title}</strong></p>
       <p class="muted" style="margin:0">${formatDate(p.latest.meetingDate)}</p>
-      <div class="actions"><a class="btn block" href="${b}/notes/${p.latest.id}">Read the latest notes</a></div>
+      <div class="actions"><a class="btn block" href="${b}/notes/${p.latest.id}">Read the latest meeting notes</a></div>
       <p class="small" style="margin:12px 0 0"><a href="${b}/notes">All meeting notes</a></p>`
     : html`<p class="muted">No meeting notes have been shared yet.</p>`}
 </section>
@@ -281,14 +281,19 @@ export function inviteForm(p: { org: Organization; values?: { email?: string; na
 </form>`;
 }
 
-export function inviteCreated(p: { org: Organization; invitation: Invitation; link: string }) {
+export function inviteCreated(p: { org: Organization; invitation: Invitation; link: string; demo?: boolean }) {
   const i = p.invitation;
   const subject = `You're invited to the ${p.org.name} workspace`;
   const body = `Hello${i.name ? ` ${i.name}` : ''},\n\nYou've been invited to the ${p.org.name} workspace, where you can read meeting notes and find the member directory.\n\n1. Open this link: ${p.link}\n2. Enter this email address: ${i.email}\n3. Type in the code that arrives by email.\n\nNo password needed. Bookmark the link to come back any time. This invitation expires on ${formatDate(i.expiresAt)}.`;
   return html`
 <h1>Invitation ready</h1>
-<p><strong>${i.name ?? i.email}</strong> can now sign in to <strong>${p.org.name}</strong> as ${i.level === 'admin' ? 'an admin' : 'a member'} using <strong>${i.email}</strong>. The invitation expires on ${formatDate(i.expiresAt)}.</p>
-<p class="note"><strong>No email has been sent yet.</strong> Send them the link below from your own email so they know it’s really from you.</p>
+${p.demo
+  ? html`<p><strong>${i.name ?? i.email}</strong> now appears under <strong>Invitations</strong> for <strong>${p.org.name}</strong>, as ${i.level === 'admin' ? 'an admin' : 'a member'}.</p>`
+  : html`<p><strong>${i.name ?? i.email}</strong> can now sign in to <strong>${p.org.name}</strong> as ${i.level === 'admin' ? 'an admin' : 'a member'} using <strong>${i.email}</strong>. The invitation expires on ${formatDate(i.expiresAt)}.</p>`}
+${p.demo
+  ? html`<p class="note"><strong>This is a demo, so nothing was sent and no one was really invited.</strong> In the real workspace you’d now get a link to send them from your own email, so they know it’s really from you.</p>
+<div class="actions"><a class="btn secondary" href="${base(p.org.id)}/manage#invitations">Done</a></div>`
+  : html`<p class="note"><strong>No email has been sent yet.</strong> Send them the link below from your own email so they know it’s really from you.</p>
 <section class="card">
   <label for="invlink">Workspace link</label>
   <input type="text" id="invlink" value="${p.link}" readonly>
@@ -308,7 +313,7 @@ export function inviteCreated(p: { org: Organization; invitation: Invitation; li
     catch { b.textContent = 'Select the link above and copy it'; }
   });
 })();
-</script>`;
+</script>`}`;
 }
 
 export function managePage(p: {

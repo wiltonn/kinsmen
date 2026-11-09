@@ -17,7 +17,11 @@ export default function hostFiles() {
       'astro:build:done': async ({ dir, logger }) => {
         const out = fileURLToPath(dir);
         const { REDIRECTS, toCloudflareRedirects } = await import('../src/lib/redirects.ts');
-        await writeFile(`${out}/_redirects`, toCloudflareRedirects(REDIRECTS));
+        const { clubDemoEnabled, CLUB_DEMO_PATH } = await import('../src/lib/club-demo.ts');
+        const demo = clubDemoEnabled(process.env);
+        // Club demo: every /club-demo/... address is served by the demo page (vercel.json does the same).
+        const demoRewrite = demo ? `${CLUB_DEMO_PATH}/* ${CLUB_DEMO_PATH} 200\n` : '';
+        await writeFile(`${out}/_redirects`, toCloudflareRedirects(REDIRECTS) + demoRewrite);
 
         const production = (process.env.SITE_ENV ?? '').toLowerCase() === 'production';
         const headers = [

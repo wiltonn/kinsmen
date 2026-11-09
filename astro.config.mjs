@@ -4,6 +4,7 @@ import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 import { loadEnv } from 'vite';
 import hostFiles from './integrations/host-files.mjs';
+import clubDemo from './integrations/club-demo.mjs';
 
 const env = loadEnv(process.env.NODE_ENV ?? 'production', process.cwd(), '');
 const site = (env.PUBLIC_SITE_URL || 'https://www.kinsmenfanshawesugarbush.com').replace(/\/$/, '');
@@ -23,6 +24,7 @@ export default defineConfig({
       filter: (page) => !page.includes('/dev/') && !page.endsWith('/404'),
     }),
     hostFiles(),
+    clubDemo(),
   ],
   image: {
     // Sanity's CDN serves responsive images for CMS content.

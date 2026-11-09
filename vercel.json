@@ -57,6 +57,12 @@
       "permanent": true
     }
   ],
+  "rewrites": [
+    {
+      "source": "/club-demo/:path*",
+      "destination": "/club-demo.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -76,6 +82,19 @@
         {
           "key": "X-Frame-Options",
           "value": "SAMEORIGIN"
+        }
+      ]
+    },
+    {
+      "source": "/club-demo(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
         }
       ]
     },
