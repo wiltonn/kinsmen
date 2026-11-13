@@ -1,9 +1,12 @@
 ---
 import { NAV_GROUPS, CONTACT_LINK, isCurrent } from '../lib/navigation';
 import { getSiteState } from '../lib/site';
+import { COMMENTS_PATH } from '../lib/annotations/model';
 import Logo from './Logo.astro';
 
-const { reservationView, content } = await getSiteState();
+const { reservationView, content, showDevNotes } = await getSiteState();
+/** Reviewer comments tab: preview builds only (the page isn't built for production). */
+const showComments = showDevNotes;
 const path = Astro.url.pathname;
 const showReserve = reservationView.showHeaderCta;
 ---
@@ -75,6 +78,19 @@ const showReserve = reservationView.showHeaderCta;
             {CONTACT_LINK.label}
           </a>
         </li>
+        {
+          showComments && (
+            <li>
+              <a
+                href={COMMENTS_PATH}
+                aria-current={isCurrent(path, COMMENTS_PATH) ? 'page' : undefined}
+                class="flex min-h-11 items-center gap-1.5 rounded-full border border-dashed border-maple-700 px-4 font-semibold text-maple-800 no-underline hover:bg-maple-50 aria-[current=page]:bg-maple-50"
+              >
+                Comments
+              </a>
+            </li>
+          )
+        }
       </ul>
     </nav>
 
@@ -128,6 +144,13 @@ const showReserve = reservationView.showHeaderCta;
       <div class="flex flex-col gap-3 sm:col-span-2">
         <a href="/contact" class="btn btn-secondary" aria-current={isCurrent(path, '/contact') ? 'page' : undefined}>Contact us</a>
         {showReserve && <a href="/pancake-house#reserve" class="btn btn-primary">Reserve a table</a>}
+        {
+          showComments && (
+            <a href={COMMENTS_PATH} class="btn btn-secondary" aria-current={isCurrent(path, COMMENTS_PATH) ? 'page' : undefined}>
+              Reviewer comments
+            </a>
+          )
+        }
       </div>
     </div>
   </nav>

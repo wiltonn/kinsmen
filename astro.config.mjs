@@ -22,7 +22,7 @@ export default defineConfig({
   compressHTML: true,
   integrations: [
     sitemap({
-      filter: (page) => !page.includes('/dev/') && !page.endsWith('/404'),
+      filter: (page) => !page.includes('/dev/') && !page.endsWith('/404') && !page.endsWith('/comments'),
     }),
     hostFiles(),
     clubDemo(),

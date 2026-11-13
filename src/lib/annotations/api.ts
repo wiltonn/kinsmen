@@ -4,11 +4,12 @@
  * (integrations/review-api.mjs). The database is injected so tests can fake it.
  *
  *   GET    /api/annotations?page=/visit   list a page's comments
+ *   GET    /api/annotations               list every comment (the /comments page)
  *   POST   /api/annotations               create  {id, page, target, comment, author}
- *   PUT    /api/annotations?id=<uuid>     edit    {comment}
+ *   PUT    /api/annotations?id=<uuid>     change  {comment?, priority?, score?}
  *   DELETE /api/annotations?id=<uuid>     delete
  */
-import { checkComment, checkId, checkNew, checkPage, LIMITS, quoteOf, ValidationError, type ReviewAnnotation } from './model.js';
+import { checkChanges, checkId, checkNew, checkPage, LIMITS, quoteOf, ValidationError, type ReviewAnnotation } from './model.js';
 
 /** The slice of node-postgres' Pool that the handler needs. */
 export interface Queryable {
@@ -22,11 +23,15 @@ interface Row {
   target: ReviewAnnotation['target'];
   comment: string;
   author: string;
+  priority: ReviewAnnotation['priority'];
+  score: number | null;
   created_at: Date | string;
   updated_at: Date | string;
 }
 
-const COLUMNS = 'id, page, quote, target, comment, author, created_at, updated_at';
+const COLUMNS = 'id, page, quote, target, comment, author, priority, score, created_at, updated_at';
+/** Safety cap for the all-comments list. */
+const MAX_LIST = 2000;
 
 const toAnnotation = (r: Row): ReviewAnnotation => ({
   id: r.id,
@@ -35,6 +40,8 @@ const toAnnotation = (r: Row): ReviewAnnotation => ({
   target: r.target,
   comment: r.comment,
   author: r.author,
+  priority: r.priority ?? null,
+  score: r.score ?? null,
   createdAt: new Date(r.created_at).toISOString(),
   updatedAt: new Date(r.updated_at).toISOString(),
 });
@@ -68,6 +75,10 @@ export function createAnnotationsHandler({ enabled, db }: HandlerOptions) {
     try {
       switch (request.method) {
         case 'GET': {
+          if (!url.searchParams.has('page')) {
+            const { rows } = await db.query<Row>(`select ${COLUMNS} from review_annotations order by created_at desc limit ${MAX_LIST}`);
+            return json({ annotations: rows.map(toAnnotation) });
+          }
           const page = checkPage(url.searchParams.get('page'));
           const { rows } = await db.query<Row>(`select ${COLUMNS} from review_annotations where page = $1 order by created_at`, [page]);
           return json({ annotations: rows.map(toAnnotation) });
@@ -86,10 +97,16 @@ export function createAnnotationsHandler({ enabled, db }: HandlerOptions) {
         }
         case 'PUT': {
           const id = checkId(url.searchParams.get('id'));
-          const comment = checkComment(((await readJson(request)) as Record<string, unknown> | null)?.comment);
+          const c = checkChanges(await readJson(request));
+          // Only a changed comment counts as an edit (updated_at); triage doesn't.
           const { rows } = await db.query<Row>(
-            `update review_annotations set comment = $2, updated_at = now() where id = $1 returning ${COLUMNS}`,
-            [id, comment],
+            `update review_annotations set
+               updated_at = case when $2 and comment is distinct from $3::text then now() else updated_at end,
+               comment    = case when $2 then $3::text else comment end,
+               priority   = case when $4 then $5::text else priority end,
+               score      = case when $6 then $7::smallint else score end
+             where id = $1 returning ${COLUMNS}`,
+            [id, 'comment' in c, c.comment ?? null, 'priority' in c, c.priority ?? null, 'score' in c, c.score ?? null],
           );
           if (!rows[0]) return error('Annotation not found.', 404);
           return json({ annotation: toAnnotation(rows[0]) });

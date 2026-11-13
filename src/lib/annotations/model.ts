@@ -20,11 +20,25 @@ export interface ReviewAnnotation {
   target: StoredSelector[];
   comment: string;
   author: string;
+  /** Triage, set on the /comments page; null until someone sets it. */
+  priority: Priority | null;
+  /** 1–5 stars; null until someone scores it. */
+  score: number | null;
   createdAt: string;
   updatedAt: string;
 }
 
 export type NewAnnotation = Pick<ReviewAnnotation, 'id' | 'page' | 'target' | 'comment' | 'author'>;
+
+/** The all-comments page (preview builds only). */
+export const COMMENTS_PATH = '/comments';
+/** Link to a comment in place: the page opens it from the hash. */
+export const commentLink = (a: Pick<ReviewAnnotation, 'page' | 'id'>) => `${a.page}#comment-${a.id}`;
+export const COMMENT_HASH = /^#comment-([0-9a-f-]{36})$/i;
+
+export const PRIORITIES = ['high', 'medium', 'low'] as const;
+export type Priority = (typeof PRIORITIES)[number];
+export const PRIORITY_LABELS: Record<Priority, string> = { high: 'High', medium: 'Medium', low: 'Low' };
 
 export class ValidationError extends Error {}
 
@@ -83,3 +97,45 @@ export function checkNew(body: unknown): NewAnnotation {
 }
 
 export const quoteOf = (target: StoredSelector[]) => target.map((s) => s.quote).join(' … ').slice(0, LIMITS.quote);
+
+/** Fields a PUT may change. Omitted fields are left as they are; null clears priority/score. */
+export interface AnnotationChanges {
+  comment?: string;
+  priority?: Priority | null;
+  score?: number | null;
+}
+
+export function checkChanges(body: unknown): AnnotationChanges {
+  const b = (body ?? {}) as Record<string, unknown>;
+  const changes: AnnotationChanges = {};
+  if ('comment' in b) changes.comment = checkComment(b.comment);
+  if ('priority' in b) {
+    if (b.priority !== null && !PRIORITIES.includes(b.priority as Priority)) throw new ValidationError('Priority must be high, medium or low.');
+    changes.priority = b.priority as Priority | null;
+  }
+  if ('score' in b) {
+    if (b.score !== null && !(Number.isInteger(b.score) && (b.score as number) >= 1 && (b.score as number) <= 5)) {
+      throw new ValidationError('Score must be a whole number from 1 to 5.');
+    }
+    changes.score = b.score as number | null;
+  }
+  if (!Object.keys(changes).length) throw new ValidationError('Nothing to change.');
+  return changes;
+}
+
+export type SortKey = 'priority' | 'score' | 'newest' | 'page';
+const PRIORITY_RANK: Record<string, number> = { high: 0, medium: 1, low: 2 };
+const rank = (a: ReviewAnnotation) => PRIORITY_RANK[a.priority ?? ''] ?? 3;
+const newestFirst = (a: ReviewAnnotation, b: ReviewAnnotation) => b.createdAt.localeCompare(a.createdAt);
+const byScore = (a: ReviewAnnotation, b: ReviewAnnotation) => (b.score ?? 0) - (a.score ?? 0);
+
+/** Triage order. "priority": High → Low → unset, then score, then newest. */
+export function sortAnnotations(list: ReviewAnnotation[], key: SortKey): ReviewAnnotation[] {
+  const compare: Record<SortKey, (a: ReviewAnnotation, b: ReviewAnnotation) => number> = {
+    priority: (a, b) => rank(a) - rank(b) || byScore(a, b) || newestFirst(a, b),
+    score: (a, b) => byScore(a, b) || rank(a) - rank(b) || newestFirst(a, b),
+    newest: newestFirst,
+    page: (a, b) => a.page.localeCompare(b.page) || rank(a) - rank(b) || newestFirst(a, b),
+  };
+  return [...list].sort(compare[key]);
+}

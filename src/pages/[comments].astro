@@ -1,0 +1,127 @@
+---
+/**
+ * /comments — every reviewer comment, with triage (priority + 1–5 stars).
+ * Preview builds only: not generated when SITE_ENV=production, like /dev/*.
+ * (A dynamic route so getStaticPaths can skip it; "comments" is the only path.)
+ * Data loads in the browser from /api/annotations. See docs/review-annotations.md.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageHeader from '../components/PageHeader.astro';
+import { getConfig } from '../lib/config';
+import { COMMENTS_PATH } from '../lib/annotations/model';
+
+export function getStaticPaths() {
+  return getConfig().isProduction ? [] : [{ params: { comments: COMMENTS_PATH.slice(1) } }];
+}
+---
+
+<BaseLayout title="Reviewer comments" description="Every comment left by reviewers on this preview site, with priority and score." noindex>
+  <PageHeader
+    eyebrow="Review"
+    title="Reviewer comments"
+    intro="Every comment left on the site. Set a priority and a score to decide what to fix first, or open a comment to see it in place."
+  />
+
+  <div class="container-page mt-8 mb-16" data-comments-app>
+    <div class="flex flex-wrap items-end gap-4 rounded-2xl border border-cream-300 bg-cream-50 p-4">
+      <label class="grid gap-1 text-sm font-semibold">
+        Page
+        <select data-filter-page class="comments-input">
+          <option value="">All pages</option>
+        </select>
+      </label>
+      <label class="grid gap-1 text-sm font-semibold">
+        Priority
+        <select data-filter-priority class="comments-input">
+          <option value="">Any priority</option>
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+          <option value="none">Not set</option>
+        </select>
+      </label>
+      <label class="grid gap-1 text-sm font-semibold">
+        Sort by
+        <select data-sort class="comments-input">
+          <option value="priority">Priority</option>
+          <option value="score">Score</option>
+          <option value="newest">Newest</option>
+          <option value="page">Page</option>
+        </select>
+      </label>
+      <p class="ml-auto text-sm text-bark-700" data-summary role="status" aria-live="polite">Loading comments…</p>
+    </div>
+
+    <ol class="mt-6 grid gap-4" data-list></ol>
+    <p class="mt-6 hidden rounded-2xl border border-dashed border-cream-300 p-8 text-center text-bark-700" data-empty></p>
+  </div>
+
+  <template id="comment-card">
+    <li class="comment-card rounded-2xl border border-cream-300 bg-white p-5 shadow-sm">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <a class="text-sm font-semibold" data-open>Open on page</a>
+        <span class="text-sm text-bark-600" data-meta></span>
+      </div>
+      <blockquote class="mt-3 border-l-4 border-maple-400 pl-3 text-bark-600 italic" data-quote></blockquote>
+      <p class="mt-3 text-lg whitespace-pre-wrap" data-comment></p>
+      <div class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
+        <label class="flex items-center gap-2 text-sm font-semibold">
+          Priority
+          <select class="comments-input" data-priority>
+            <option value="">Not set</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+          </select>
+        </label>
+        <div class="flex items-center gap-2 text-sm font-semibold">
+          <span data-score-label>Score</span>
+          <div class="flex" role="group" data-stars></div>
+        </div>
+        <span class="text-sm text-alert-700" data-error role="alert"></span>
+      </div>
+    </li>
+  </template>
+
+  <style is:global>
+    .comments-input {
+      min-height: 2.5rem;
+      padding: 0.25rem 0.5rem;
+      border: 1px solid var(--color-bark-600);
+      border-radius: 0.5rem;
+      background: white;
+      font-weight: 400;
+    }
+    .comment-card[data-priority='high'] {
+      border-left: 6px solid var(--color-alert-700);
+    }
+    .comment-card[data-priority='medium'] {
+      border-left: 6px solid var(--color-maple-400);
+    }
+    .comment-card[data-priority='low'] {
+      border-left: 6px solid var(--color-forest-600);
+    }
+    .comment-star {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 999px;
+      color: var(--color-bark-600);
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .comment-star[data-on] {
+      color: var(--color-maple-600);
+    }
+    .comment-star:hover {
+      background: var(--color-cream-100);
+    }
+  </style>
+  <script>
+    import { startCommentsPage } from '../scripts/review-comments';
+    startCommentsPage();
+  </script>
+</BaseLayout>
