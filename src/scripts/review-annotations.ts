@@ -5,7 +5,7 @@
  */
 import { createTextAnnotator, type TextAnnotation, type TextAnnotator } from '@recogito/text-annotator';
 import { pagePath } from '../lib/navigation';
-import type { ReviewAnnotation } from '../lib/annotations/model';
+import { COMMENT_HASH, PRIORITY_LABELS, type ReviewAnnotation } from '../lib/annotations/model';
 
 const API = '/api/annotations';
 const NAME_KEY = 'kfsb-reviewer-name';
@@ -120,7 +120,9 @@ export function startReviewAnnotations() {
     view.querySelector<HTMLElement>('[data-review-quote]')!.textContent = a.quote;
     view.querySelector<HTMLElement>('[data-review-comment]')!.textContent = a.comment;
     const edited = a.updatedAt !== a.createdAt ? ' (edited)' : '';
-    view.querySelector<HTMLElement>('[data-review-meta]')!.textContent = `${a.author} · ${dateFormat.format(new Date(a.createdAt))}${edited}`;
+    const triage = [a.priority && `${PRIORITY_LABELS[a.priority]} priority`, a.score && `${'★'.repeat(a.score)}${'☆'.repeat(5 - a.score)}`].filter(Boolean);
+    view.querySelector<HTMLElement>('[data-review-meta]')!.textContent =
+      `${a.author} · ${dateFormat.format(new Date(a.createdAt))}${edited}${triage.length ? ` · ${triage.join(' · ')}` : ''}`;
     place(a.id);
   }
 
@@ -243,7 +245,20 @@ export function startReviewAnnotations() {
     .then(({ annotations }) => {
       for (const a of annotations) saved.set(a.id, a);
       anno.setAnnotations(annotations.map(toTextAnnotation), true);
-      if (annotations.length) say(`${annotations.length} reviewer comment${annotations.length === 1 ? '' : 's'} on this page.`);
+      const linked = COMMENT_HASH.exec(location.hash)?.[1]?.toLowerCase();
+      const target = linked ? saved.get(linked) : undefined;
+      if (target) {
+        // Arrived from /comments: scroll to the highlight and open it.
+        anno.scrollIntoView(target.id);
+        requestAnimationFrame(() => {
+          anno.setSelected(target.id);
+          if (current !== target.id) showSaved(target);
+        });
+      } else if (linked) {
+        say('That comment was deleted or is on another page.');
+      } else if (annotations.length) {
+        say(`${annotations.length} reviewer comment${annotations.length === 1 ? '' : 's'} on this page.`);
+      }
     })
     .catch((e) => say(`Reviewer comments unavailable: ${(e as Error).message}`));
 }

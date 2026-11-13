@@ -5,7 +5,7 @@
 import { describe, expect, it } from 'vitest';
 import { findReviewToolsInProduction } from '../scripts/private-data-rules';
 import { createAnnotationsHandler, type Queryable } from '../src/lib/annotations/api';
-import { checkNew, isAnnotationsEnabled, ValidationError } from '../src/lib/annotations/model';
+import { checkChanges, checkNew, commentLink, COMMENT_HASH, isAnnotationsEnabled, sortAnnotations, ValidationError, type ReviewAnnotation } from '../src/lib/annotations/model';
 
 const ID = '3f2c1a9e-8b7d-4c6e-9a1f-0b2c3d4e5f60';
 const valid = { id: ID, page: '/visit', author: 'Pat', comment: 'Hours look wrong', target: [{ quote: 'Open daily', start: 10, end: 20 }] };
@@ -18,18 +18,25 @@ function fakeDb(): Queryable & { rows: Map<string, Record<string, unknown>> } {
     async query(text: string, params: unknown[] = []) {
       const sql = text.trim().toLowerCase();
       const now = new Date().toISOString();
-      if (sql.startsWith('select')) return { rows: [...rows.values()].filter((r) => r.page === params[0]) as never[] };
+      if (sql.startsWith('select')) {
+        const all = [...rows.values()];
+        return { rows: (params.length ? all.filter((r) => r.page === params[0]) : all) as never[] };
+      }
       if (sql.startsWith('insert')) {
         const [id, page, quote, target, comment, author] = params as string[];
         if (rows.has(id)) return { rows: [] };
-        const row = { id, page, quote, target: JSON.parse(target), comment, author, created_at: now, updated_at: now };
+        const row = { id, page, quote, target: JSON.parse(target), comment, author, priority: null, score: null, created_at: now, updated_at: now };
         rows.set(id, row);
         return { rows: [row] as never[] };
       }
       if (sql.startsWith('update')) {
         const row = rows.get(params[0] as string);
         if (!row) return { rows: [] };
-        Object.assign(row, { comment: params[1], updated_at: now });
+        // Mirrors the handler's CASE expressions: [id, setComment, comment, setPriority, priority, setScore, score].
+        const [, setComment, comment, setPriority, priority, setScore, score] = params;
+        if (setComment && comment !== row.comment) Object.assign(row, { comment, updated_at: new Date(Date.now() + 1000).toISOString() });
+        if (setPriority) row.priority = priority;
+        if (setScore) row.score = score;
         return { rows: [row] as never[] };
       }
       if (sql.startsWith('delete')) {
@@ -101,6 +108,58 @@ describe('/api/annotations handler', () => {
     expect((await handle(new Request('https://preview.example/api/annotations', { method: 'POST', body: '{nope' }))).status).toBe(400);
     expect((await handle(req('GET', '/api/annotations?page=nope'))).status).toBe(400);
     expect((await handle(req('PATCH', '/api/annotations'))).status).toBe(405);
+    expect((await handle(req('PUT', `/api/annotations?id=${ID}`, { score: 9 }))).status).toBe(400);
+    expect((await handle(req('PUT', `/api/annotations?id=${ID}`, {}))).status).toBe(400);
+  });
+});
+
+describe('triage', () => {
+  it('validates partial changes', () => {
+    expect(checkChanges({ priority: 'high' })).toEqual({ priority: 'high' });
+    expect(checkChanges({ priority: null, score: null })).toEqual({ priority: null, score: null });
+    expect(checkChanges({ score: 5 })).toEqual({ score: 5 });
+    for (const bad of [{}, { priority: 'urgent' }, { score: 0 }, { score: 6 }, { score: 2.5 }, { score: '3' }, { comment: ' ' }]) {
+      expect(() => checkChanges(bad), JSON.stringify(bad)).toThrow(ValidationError);
+    }
+  });
+
+  it('sets priority and score without marking the comment edited, and lists every page', async () => {
+    const db = fakeDb();
+    const handle = createAnnotationsHandler({ enabled: true, db });
+    await handle(req('POST', '/api/annotations', valid));
+    await handle(req('POST', '/api/annotations', { ...valid, id: ID.replace('0', '1'), page: '/faq' }));
+
+    const res = await handle(req('PUT', `/api/annotations?id=${ID}`, { priority: 'high', score: 4 }));
+    const { annotation } = await res.json();
+    expect(annotation).toMatchObject({ priority: 'high', score: 4 });
+    expect(annotation.updatedAt).toBe(annotation.createdAt);
+
+    const cleared = await (await handle(req('PUT', `/api/annotations?id=${ID}`, { score: null }))).json();
+    expect(cleared.annotation).toMatchObject({ priority: 'high', score: null });
+
+    const all = await (await handle(req('GET', '/api/annotations'))).json();
+    expect(all.annotations.map((a: ReviewAnnotation) => a.page).sort()).toEqual(['/faq', '/visit']);
+  });
+
+  it('sorts High → Medium → Low → unset, then by score, then newest', () => {
+    const base = { page: '/', quote: 'q', target: [], comment: 'c', author: 'a', updatedAt: '' };
+    const mk = (id: string, priority: ReviewAnnotation['priority'], score: number | null, createdAt: string): ReviewAnnotation => ({ ...base, id, priority, score, createdAt });
+    const list = [
+      mk('unset-new', null, 5, '2026-11-05'),
+      mk('low', 'low', null, '2026-11-01'),
+      mk('high-3', 'high', 3, '2026-11-01'),
+      mk('high-5', 'high', 5, '2026-11-01'),
+      mk('medium', 'medium', 1, '2026-11-01'),
+    ];
+    expect(sortAnnotations(list, 'priority').map((a) => a.id)).toEqual(['high-5', 'high-3', 'medium', 'low', 'unset-new']);
+    expect(sortAnnotations(list, 'score').map((a) => a.id)).toEqual(['high-5', 'unset-new', 'high-3', 'medium', 'low']);
+    expect(sortAnnotations(list, 'newest')[0].id).toBe('unset-new');
+  });
+
+  it('links to a comment in place', () => {
+    const link = commentLink({ page: '/visit', id: ID });
+    expect(link).toBe(`/visit#comment-${ID}`);
+    expect(COMMENT_HASH.exec(link.slice('/visit'.length))?.[1]).toBe(ID);
   });
 });
 

@@ -12,3 +12,7 @@ create table if not exists review_annotations (
 );
 
 create index if not exists review_annotations_page_idx on review_annotations (page, created_at);
+
+-- Triage: set from the /comments page. Null means "not set yet".
+alter table review_annotations add column if not exists priority text check (priority in ('high', 'medium', 'low'));
+alter table review_annotations add column if not exists score smallint check (score between 1 and 5);

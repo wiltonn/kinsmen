@@ -5,6 +5,7 @@
  * Select text in the page's main content to comment; comments are shared by
  * all reviewers via /api/annotations (Neon). See docs/review-annotations.md.
  */
+import { COMMENTS_PATH } from '../lib/annotations/model';
 ---
 
 <div id="review-popup" class="review-popup" role="dialog" aria-label="Reviewer comment" hidden>
@@ -44,6 +45,7 @@
       <button type="button" data-review-delete>Delete</button>
       <button type="button" data-review-close>Close</button>
     </div>
+    <p class="review-popup__meta review-popup__all"><a href={COMMENTS_PATH}>All comments →</a></p>
   </div>
 </div>
 <p id="review-status" class="review-status" role="status" hidden></p>
@@ -104,6 +106,9 @@
     margin: 0 0 0.5rem;
     color: var(--color-bark-600);
     font-size: 0.8125rem;
+  }
+  .review-popup__all {
+    margin: 0.625rem 0 0;
   }
   .review-popup__error {
     margin: 0 0 0.5rem;
