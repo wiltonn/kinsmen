@@ -184,3 +184,7 @@ deploy hook every morning if the repository secret `DEPLOY_HOOK_URL` is set.
 - [Spike: Website Admin tracker](docs/spikes/admin-tracker.md) (`npm run admin:demo` → http://127.0.0.1:3334)
 - [Spike: Club workspace](docs/spikes/club-workspace.md) (`npm run workspace:demo` → http://127.0.0.1:4322)
 - [Club workspace demo on the website](docs/club-demo.md) (`ENABLE_CLUB_DEMO=true`, `/club-demo`)
+
+## Reviewer comments
+
+Preview builds let reviewers highlight text and leave shared comments (stored in Neon). See [docs/review-annotations.md](docs/review-annotations.md).
