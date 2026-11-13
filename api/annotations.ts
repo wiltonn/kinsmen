@@ -5,8 +5,8 @@
  */
 import { attachDatabasePool } from '@vercel/functions';
 import { Pool } from 'pg';
-import { createAnnotationsHandler } from '../src/lib/annotations/api';
-import { isAnnotationsEnabled } from '../src/lib/annotations/model';
+import { createAnnotationsHandler } from '../src/lib/annotations/api.js';
+import { isAnnotationsEnabled } from '../src/lib/annotations/model.js';
 
 const connectionString = process.env.DATABASE_URL;
 const pool = connectionString ? new Pool({ connectionString, max: 5 }) : undefined;
