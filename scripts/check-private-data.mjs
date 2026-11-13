@@ -11,7 +11,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { join, relative, sep } from 'node:path';
 import { clubDemoEnabled } from '../src/lib/club-demo.ts';
-import { findPrivateData, MARKER_COUNT } from './private-data-rules.ts';
+import { findPrivateData, findReviewToolsInProduction, MARKER_COUNT } from './private-data-rules.ts';
 
 const DIST = new URL('../dist/', import.meta.url).pathname;
 const BINARY = /\.(png|jpe?g|webp|avif|gif|ico|pdf|woff2?|ttf)$/i;
@@ -26,7 +26,8 @@ const all = await walk(DIST);
 const files = await Promise.all(
   all.map(async (f) => ({ path: relative(DIST, f).split(sep).join('/'), text: BINARY.test(f) ? '' : await readFile(f, 'utf8') })),
 );
-const problems = findPrivateData(files, { demoEnabled });
+const production = (process.env.SITE_ENV ?? '').trim().toLowerCase() === 'production';
+const problems = [...findPrivateData(files, { demoEnabled }), ...(production ? findReviewToolsInProduction(files) : [])];
 
 if (problems.length) {
   console.error(`\n✗ Private-data check failed:\n${problems.map((p) => `  - ${p}`).join('\n')}\n`);

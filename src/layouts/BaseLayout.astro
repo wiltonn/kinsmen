@@ -4,6 +4,7 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import NoticeBanner from '../components/NoticeBanner.astro';
 import DevBanner from '../components/DevBanner.astro';
+import ReviewAnnotations from '../components/ReviewAnnotations.astro';
 import JsonLd from '../components/JsonLd.astro';
 import { getSiteState } from '../lib/site';
 import { getConfig } from '../lib/config';
@@ -92,6 +93,7 @@ const breadcrumbLd = breadcrumbs?.length
       <slot />
     </main>
     <Footer />
+    {state.showDevNotes && <ReviewAnnotations />}
     <script>
       import '../scripts/enhance';
     </script>

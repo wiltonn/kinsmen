@@ -34,4 +34,16 @@ export function findPrivateData(files: { path: string; text: string }[], opts: {
   return problems;
 }
 
+/**
+ * Reviewer comments (preview builds only): a production build must not ship
+ * the annotator, its popup or any call to the comments API.
+ */
+export const REVIEW_TOOL_MARKERS = ['/api/annotations', 'review-popup', 'text-annotator'];
+
+export function findReviewToolsInProduction(files: { path: string; text: string }[]): string[] {
+  return files.flatMap(({ path, text }) =>
+    REVIEW_TOOL_MARKERS.filter((m) => text.includes(m)).map((m) => `${path}: contains reviewer-comment code "${m}" in a production build`),
+  );
+}
+
 export const MARKER_COUNT = ALWAYS_PRIVATE.length + PUBLIC_DEMO_MARKERS.length;

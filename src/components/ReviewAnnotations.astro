@@ -1,0 +1,158 @@
+---
+/**
+ * Reviewer comments (preview builds only — BaseLayout renders this only when
+ * showDevNotes is true, so production pages never load the annotator).
+ * Select text in the page's main content to comment; comments are shared by
+ * all reviewers via /api/annotations (Neon). See docs/review-annotations.md.
+ */
+---
+
+<div id="review-popup" class="review-popup" role="dialog" aria-label="Reviewer comment" hidden>
+  <form data-review-new hidden>
+    <p class="review-popup__quote" data-review-quote></p>
+    <label class="review-popup__label">
+      Your comment
+      <textarea name="comment" rows="3" maxlength="2000" required></textarea>
+    </label>
+    <label class="review-popup__label">
+      Your name
+      <input name="author" maxlength="80" autocomplete="name" required />
+    </label>
+    <p class="review-popup__error" data-review-error role="alert"></p>
+    <div class="review-popup__actions">
+      <button type="submit" class="review-popup__primary">Save comment</button>
+      <button type="button" data-review-cancel>Cancel</button>
+    </div>
+  </form>
+  <div data-review-view hidden>
+    <p class="review-popup__quote" data-review-quote></p>
+    <p class="review-popup__comment" data-review-comment></p>
+    <p class="review-popup__meta" data-review-meta></p>
+    <form data-review-edit hidden>
+      <label class="review-popup__label">
+        Edit comment
+        <textarea name="comment" rows="3" maxlength="2000" required></textarea>
+      </label>
+      <div class="review-popup__actions">
+        <button type="submit" class="review-popup__primary">Save</button>
+        <button type="button" data-review-edit-cancel>Cancel</button>
+      </div>
+    </form>
+    <p class="review-popup__error" data-review-error role="alert"></p>
+    <div class="review-popup__actions" data-review-view-actions>
+      <button type="button" data-review-edit-start>Edit</button>
+      <button type="button" data-review-delete>Delete</button>
+      <button type="button" data-review-close>Close</button>
+    </div>
+  </div>
+</div>
+<p id="review-status" class="review-status" role="status" hidden></p>
+
+<style>
+  .review-popup {
+    position: absolute;
+    z-index: 90;
+    width: min(22rem, calc(100vw - 2rem));
+    padding: 0.875rem;
+    border: 1px solid var(--color-maple-300);
+    border-radius: 0.75rem;
+    background: var(--color-cream-50);
+    color: var(--color-ink);
+    box-shadow: 0 10px 30px rgb(22 49 38 / 0.18);
+    font-family: var(--font-sans, inherit);
+    font-size: 0.9375rem;
+    line-height: 1.4;
+  }
+  .review-popup[hidden],
+  .review-popup [hidden] {
+    display: none;
+  }
+  .review-popup__quote {
+    margin: 0 0 0.5rem;
+    padding-left: 0.5rem;
+    border-left: 3px solid var(--color-maple-400);
+    color: var(--color-bark-600);
+    font-style: italic;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .review-popup__label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+  .review-popup textarea,
+  .review-popup input {
+    display: block;
+    width: 100%;
+    margin-top: 0.25rem;
+    padding: 0.375rem 0.5rem;
+    border: 1px solid var(--color-bark-600);
+    border-radius: 0.375rem;
+    background: white;
+    font: inherit;
+    font-weight: 400;
+  }
+  .review-popup__comment {
+    margin: 0 0 0.25rem;
+    white-space: pre-wrap;
+  }
+  .review-popup__meta {
+    margin: 0 0 0.5rem;
+    color: var(--color-bark-600);
+    font-size: 0.8125rem;
+  }
+  .review-popup__error {
+    margin: 0 0 0.5rem;
+    color: var(--color-alert-700);
+    font-size: 0.875rem;
+  }
+  .review-popup__error:empty {
+    display: none;
+  }
+  .review-popup__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .review-popup button {
+    padding: 0.375rem 0.875rem;
+    border: 1px solid var(--color-forest-700);
+    border-radius: 999px;
+    background: white;
+    color: var(--color-forest-900);
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+  .review-popup button.review-popup__primary {
+    background: var(--color-forest-800);
+    color: white;
+  }
+  .review-popup button:disabled {
+    opacity: 0.6;
+    cursor: progress;
+  }
+  .review-status {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 90;
+    max-width: calc(100vw - 2rem);
+    margin: 0;
+    padding: 0.5rem 0.875rem;
+    border-radius: 0.5rem;
+    background: var(--color-forest-900);
+    color: var(--color-cream-50);
+    font-size: 0.875rem;
+  }
+</style>
+
+<script>
+  import '@recogito/text-annotator/text-annotator.css';
+  import { startReviewAnnotations } from '../scripts/review-annotations';
+  startReviewAnnotations();
+</script>
