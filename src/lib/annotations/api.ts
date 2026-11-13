@@ -8,7 +8,7 @@
  *   PUT    /api/annotations?id=<uuid>     edit    {comment}
  *   DELETE /api/annotations?id=<uuid>     delete
  */
-import { checkComment, checkId, checkNew, checkPage, LIMITS, quoteOf, ValidationError, type ReviewAnnotation } from './model';
+import { checkComment, checkId, checkNew, checkPage, LIMITS, quoteOf, ValidationError, type ReviewAnnotation } from './model.js';
 
 /** The slice of node-postgres' Pool that the handler needs. */
 export interface Queryable {
